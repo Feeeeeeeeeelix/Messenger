@@ -9,6 +9,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
 public class MainActivity extends AppCompatActivity {
 
     Encrypter encrypter;
@@ -21,5 +27,19 @@ public class MainActivity extends AppCompatActivity {
         ConstraintLayout mainChatLayout = findViewById(R.id.mainChatFrame);
 
         Chat chat = new Chat(this, mainChatLayout);
+
+
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(new File(getFilesDir(), "test.txt"));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            fos.write("das ist text".getBytes(StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 }

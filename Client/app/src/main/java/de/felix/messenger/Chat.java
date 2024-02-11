@@ -44,17 +44,22 @@ public class Chat {
     }
 
     public void createMessage(){
+//        Get Message Text and create Message Object
         String currentMessage = messageEntry.getText().toString();
         Message newMessage = new Message(context);
         newMessage.setText(currentMessage);
 
+//        Place the message on the screen
         placeNewMessage(newMessage);
+
         messages.add(newMessage);
+
         sendMessage(newMessage);
 
     }
 
     public void placeNewMessage(Message message){
+//        Create a Layout for the message and place it in the main layout
         MessageLayout messageLayout = message.getLayout();
         mainChatLayout.addView(messageLayout);
     }
@@ -64,6 +69,6 @@ public class Chat {
     }
 
     public void updateTimeStamps(){
-
+//    TODO: update Timestamps
     }
 }

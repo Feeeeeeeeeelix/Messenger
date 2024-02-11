@@ -25,6 +25,7 @@ public class Message {
     }
 
     public void saveTime(){
+//        TODO: find non critical way to save time
         LocalTime timeCreatedShort = LocalTime.now();
         timeCreatedLong = LocalDateTime.now();
         timeCreatedDisplay = timeCreatedShort.format(DateTimeFormatter.ofPattern("HH:mm"));
