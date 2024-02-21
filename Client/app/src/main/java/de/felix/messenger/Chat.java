@@ -8,8 +8,13 @@ import android.widget.LinearLayout;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import java.io.File;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Chat {
 
@@ -20,6 +25,10 @@ public class Chat {
 
     List<Message> messages;
     Context context;
+
+    Integer Id;
+    private PublicKey publicKeyReceiver;
+    private static PrivateKey privateKeySelf;
 
     public Chat(Context context, ConstraintLayout mainLayout) {
 
@@ -34,20 +43,43 @@ public class Chat {
         sendMessageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                createMessage();
+                createOwnMessage();
             }
         });
     }
 
-    public void receiveMessage(){
-
+    private void savePublicKey(PublicKey publicKey){
+        publicKeyReceiver = publicKey;
+        String publicKeyName = Id.toString() + "_public.key";
+        Encrypter.storePublicKey(publicKey, publicKeyName);
     }
 
-    public void createMessage(){
+    public PublicKey getPublicKeyReceiver() {
+        if (publicKeyReceiver == null){
+            publicKeyReceiver = getPublicKeyFromFiles();
+        }
+        return publicKeyReceiver;
+    }
+
+    private PublicKey getPublicKeyFromFiles(){
+        String publicKeyName = Id.toString() + "_public.key";
+        PublicKey pubKey = Encrypter.readPublicKeyFromFile(publicKeyName);
+        if (pubKey == null){
+            pubKey = requestPublicKey();
+        }
+        return pubKey;
+    }
+
+    private PublicKey requestPublicKey(){
+        return publicKeyReceiver;
+    }
+
+    public void createOwnMessage(){
 //        Get Message Text and create Message Object
         String currentMessage = messageEntry.getText().toString();
-        Message newMessage = new Message(context);
+        Message newMessage = new Message(context, currentMessage.length()%2);
         newMessage.setText(currentMessage);
+//        newMessage.setText(currentMessage);
 
 //        Place the message on the screen
         placeNewMessage(newMessage);
@@ -65,7 +97,17 @@ public class Chat {
     }
 
     public void sendMessage(Message messageToSend){
+//        byte[] encryptedBytesToSend = Encrypter.encryptString(messageToSend.textContent, publicKeyReceiver);
 
+        //send..
+    }
+
+    public void receiveMessage(){
+
+    }
+
+    private String decryptStringMessage(byte[] encryptedBytes){
+        return new String();
     }
 
     public void updateTimeStamps(){

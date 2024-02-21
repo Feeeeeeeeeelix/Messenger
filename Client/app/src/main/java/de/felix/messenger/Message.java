@@ -18,9 +18,11 @@ public class Message {
     Context context;
     String textContent;
     Image imageContent;
+    int side;
 
-    public Message(Context context){
+    public Message(Context context, int Side){
         this.context = context;
+        this.side = Side;
         saveTime();
     }
 
@@ -32,7 +34,7 @@ public class Message {
     }
 
     public MessageLayout getLayout(){
-        MessageLayout layout = new MessageLayout(context);
+        MessageLayout layout = new MessageLayout(context, side);
         layout.setMessageContent(textContent);
         layout.setTimeStamp(timeCreatedDisplay);
         return layout;
