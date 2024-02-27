@@ -92,9 +92,6 @@ public class Chat {
 
     }
 
-    private String decryptStringMessage(byte[] encryptedBytes){
-        return Encrypter.decryptString(encryptedBytes, keyManager.getOwnPrivateKey());
-    }
 
     public void updateTimeStamps(){
 //    TODO: update Timestamps
@@ -105,7 +102,7 @@ public class Chat {
         HashMap<Long, byte[]> Messages = messages.loadMessages();
 
         for (Map.Entry<Long, byte[]> message: Messages.entrySet()) {
-            String messageText = decryptStringMessage(message.getValue());
+            String messageText = Encrypter.decryptString(message.getValue(), keyManager.getOwnPrivateKey());
 
             Message newMessage = new Message(context, 0, message.getKey());
             newMessage.setText(messageText);
@@ -113,7 +110,5 @@ public class Chat {
 //        Place the message on the screen
             placeNewMessage(newMessage);
         }
-
     }
-
 }

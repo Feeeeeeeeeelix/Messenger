@@ -1,13 +1,10 @@
 package de.felix.messenger;
 
 import android.content.Context;
-import android.media.Image;
 import android.os.Build;
 
 import java.security.PublicKey;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -15,14 +12,11 @@ import java.util.Locale;
 
 public class Message {
 
-    MessageLayout messageLayout;
-
     String timeCreatedDisplay;
     Instant timeCreated;
 
     Context context;
     String textContent;
-    Image imageContent;
     int side;
 
     public Message(Context context, int Side){
@@ -56,9 +50,6 @@ public class Message {
 
     }
 
-    public void setImage(Image image){
-        imageContent = image;
-    }
 
     public byte[] getEncrypted(PublicKey publicKey){
         return Encrypter.encryptString(textContent, publicKey);

@@ -5,21 +5,16 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Hashtable;
 
 public class Messages {
 
     String chatKey;
     File filesFolder;
-//    String fileName;
-
 
     public Messages(File baseDir, String chatKey) {
-        this.filesFolder = new File(baseDir, String.format("Chat-%s//", chatKey));
+        this.filesFolder = new File(baseDir, String.format("Chat-%s/", chatKey));
         this.chatKey = chatKey;
-//        this.fileName = String.format("Chat-%s", chatKey);
     }
-
 
     public HashMap<Long, byte[]> loadMessages(){
         HashMap<Long, byte[]> messageDict = new HashMap<>();
@@ -49,7 +44,6 @@ public class Messages {
         }
     }
 
-
     public void saveNewMessage(byte[] messageText, long messageTime){
         try {
             String fileName = String.valueOf(messageTime);
@@ -58,7 +52,6 @@ public class Messages {
             messageFile.createNewFile();
 
             FileOutputStream fos = new FileOutputStream(messageFile);
-//            byte[] messagePrefix = ("\n" + messageTime+ "-").getBytes(StandardCharsets.UTF_8);
 
             fos.write(messageText);
 

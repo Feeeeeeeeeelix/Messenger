@@ -19,35 +19,15 @@ import java.security.spec.EncodedKeySpec;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 
-import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
 public class Encrypter {
-
-
-    KeyPair keyPair;
-
-    private PrivateKey privateKey = null;
-    PublicKey publicKey = null;
 
     static File filesDir;
 
     public Encrypter(File filesDir) {
         Encrypter.filesDir = filesDir;
-    }
-
-    public PrivateKey getPrivateKey() throws NoSuchAlgorithmException {
-        if (privateKey == null){
-
-            PublicKey pubKey = readPublicKeyFromFile("d");
-            if (pubKey == null){
-                generateKeyPair();
-            }
-        }
-
-        return privateKey;
     }
 
     public static KeyPair generateKeyPair() {
@@ -109,24 +89,6 @@ public class Encrypter {
         }
     }
 
-    public void readKeyPairFromFiles(){
-        try {
-            FileInputStream publicKeyFile = new FileInputStream(new File(filesDir, "public.key"));
-            byte[] pubKeyBytes = publicKeyFile.readAllBytes();
-            KeyFactory pubKeyFactory = KeyFactory.getInstance("RSA");
-            EncodedKeySpec pubKeySpec = new X509EncodedKeySpec(pubKeyBytes);
-            publicKey = pubKeyFactory.generatePublic(pubKeySpec);
-
-            FileInputStream privateKeyFile = new FileInputStream(new File(filesDir, "private.key"));
-            byte[] privKeyBytes = privateKeyFile.readAllBytes();
-            KeyFactory privKeyFactory = KeyFactory.getInstance("RSA");
-            EncodedKeySpec privKeySpec = new X509EncodedKeySpec(privKeyBytes);
-            privateKey = privKeyFactory.generatePrivate(privKeySpec);
-
-        } catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public static byte[] encryptString(String stringToEncrypt, PublicKey givenPublicKey) {
         try {

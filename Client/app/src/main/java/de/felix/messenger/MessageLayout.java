@@ -1,14 +1,14 @@
+
 package de.felix.messenger;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.media.Image;
 import android.view.Gravity;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Space;
 import android.widget.TextView;
+
 
 @SuppressLint("ViewConstructor")
 public class MessageLayout extends LinearLayout {
@@ -71,16 +71,8 @@ public class MessageLayout extends LinearLayout {
         TextView messageLabel = new TextView(context);
         messageLabel.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
         messageLabel.setText(messageText);
-//        messageLabel.setId(String.join(id, "-content"));
 
         vertLayout.addView(messageLabel,0);
     }
 
-    public void setImageContent(Image imageContent){
-        ImageView imageLabel = new ImageView(context);
-        imageLabel.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-//        imageLabel.imageContent);
-
-        vertLayout.addView(imageLabel, 0);
-    }
 }

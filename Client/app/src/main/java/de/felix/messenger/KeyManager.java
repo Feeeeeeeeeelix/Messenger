@@ -1,7 +1,6 @@
 package de.felix.messenger;
 
 import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
@@ -17,30 +16,23 @@ public class KeyManager {
         this.chatIdentifier = chatIdentifier;
     }
 
-    private void savePublicKey(){
-//        save the public key of the other person on the device
-
-        String publicKeyName = chatIdentifier + "_public.key";
-        Encrypter.storeKey(publicKeyPartner, publicKeyName);
-    }
-
     public PublicKey getPublicKeyPartner() {
 //        Get the pub key of the other person (the receiver of the message that will be encrypted)
-        if (publicKeyPartner == null){
-            publicKeyPartner = loadPublicKeyPartner();
+        if (publicKeyPartner != null){
+            return publicKeyPartner;
         }
-        return publicKeyPartner;
-    }
 
-    private PublicKey loadPublicKeyPartner(){
-//        Loads the pub key either from the device or request it from the receiver in case we dont have it
+//          Load Key from file or request it if it does not exist
         String publicKeyName = chatIdentifier + "_public.key";
         PublicKey pubKey = Encrypter.readPublicKeyFromFile(publicKeyName);
-        if (pubKey == null){
-            pubKey = requestPublicKeyPartner();
-
-            Encrypter.storeKey(pubKey, publicKeyName);
+        if (pubKey != null){
+            return pubKey;
         }
+
+//        The key does not exist. Request ist from the partner
+        pubKey = requestPublicKeyPartner();
+        Encrypter.storeKey(pubKey, publicKeyName);
+
         return pubKey;
     }
 
@@ -50,16 +42,16 @@ public class KeyManager {
     }
 
     public PublicKey getOwnPublicKey(){
-        if (ownPublicKey == null){
-            ownPublicKey = loadOwnPublicKey();
+        if (ownPublicKey != null){
+            return ownPublicKey;
         }
-        return ownPublicKey;
-    }
 
-    private PublicKey loadOwnPublicKey(){
+//        Load the public key from the device
         String publicKeyName =   "own_public.key";
         PublicKey pubKey = Encrypter.readPublicKeyFromFile(publicKeyName);
         if (pubKey == null){
+
+//            The key does not exist. Create one
             createOwnKeyPair();
             pubKey = this.ownPublicKey;
         }
@@ -67,16 +59,16 @@ public class KeyManager {
     }
 
     public PrivateKey getOwnPrivateKey(){
-        if (ownPrivateKey == null){
-            ownPrivateKey = loadOwnPrivateKey();
+        if (ownPrivateKey != null){
+            return ownPrivateKey;
         }
-        return ownPrivateKey;
-    }
 
-    private PrivateKey loadOwnPrivateKey(){
+//        Load the private key from the device
         String privateKeyName =   "own_private.key";
         PrivateKey privateKey = Encrypter.readPrivateKeyFromFile(privateKeyName);
         if (privateKey == null){
+
+//            The key does not exist. Create one
             createOwnKeyPair();
             privateKey = this.ownPrivateKey;
         }
