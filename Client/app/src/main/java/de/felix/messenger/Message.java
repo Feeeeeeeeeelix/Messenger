@@ -2,10 +2,15 @@ package de.felix.messenger;
 
 import android.content.Context;
 import android.media.Image;
+import android.os.Build;
 
+import java.security.PublicKey;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 
 public class Message {
@@ -13,7 +18,7 @@ public class Message {
     MessageLayout messageLayout;
 
     String timeCreatedDisplay;
-    LocalDateTime timeCreatedLong;
+    Instant timeCreated;
 
     Context context;
     String textContent;
@@ -26,11 +31,17 @@ public class Message {
         saveTime();
     }
 
+    public Message(Context context, int Side, long givenCreationTime){
+        this.context = context;
+        this.side = Side;
+
+        timeCreated = Instant.ofEpochSecond(givenCreationTime);
+        timeCreatedDisplay = DateTimeFormatter.ofPattern("HH:mm").withLocale(Locale.getDefault()).withZone(ZoneId.systemDefault()).format(timeCreated);
+    }
+
     public void saveTime(){
-//        TODO: find non critical way to save time
-        LocalTime timeCreatedShort = LocalTime.now();
-        timeCreatedLong = LocalDateTime.now();
-        timeCreatedDisplay = timeCreatedShort.format(DateTimeFormatter.ofPattern("HH:mm"));
+        timeCreated = Instant.now();
+        timeCreatedDisplay = DateTimeFormatter.ofPattern("HH:mm").withLocale(Locale.getDefault()).withZone(ZoneId.systemDefault()).format(timeCreated);
     }
 
     public MessageLayout getLayout(){
@@ -47,6 +58,17 @@ public class Message {
 
     public void setImage(Image image){
         imageContent = image;
+    }
+
+    public byte[] getEncrypted(PublicKey publicKey){
+        return Encrypter.encryptString(textContent, publicKey);
+    }
+
+    public long getCreationTime(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            return timeCreated.getEpochSecond();
+        }
+        return 0;
     }
 }
 

@@ -1,44 +1,39 @@
 package de.felix.messenger;
 
 import android.content.Context;
+import android.icu.util.HebrewCalendar;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 
-import java.io.File;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Chat {
 
     ConstraintLayout mainChatFrame;
     LinearLayout mainChatLayout;
+    ScrollView mainScrollView;
     Button sendMessageButton;
     EditText messageEntry;
 
-    List<Message> messages;
+    Messages messages;
     Context context;
 
-    Integer Id;
-    private PublicKey publicKeyReceiver;
-    private static PrivateKey privateKeySelf;
+    KeyManager keyManager;
 
     public Chat(Context context, ConstraintLayout mainLayout) {
 
         this.context = context;
         mainChatFrame = mainLayout;
         mainChatLayout = mainLayout.findViewById(R.id.mainMessageLayout);
+        mainScrollView = mainLayout.findViewById(R.id.mainScrollView);
         sendMessageButton = mainLayout.findViewById(R.id.button);
         messageEntry = mainLayout.findViewById(R.id.editTextText);
-
-        messages = new ArrayList<Message>();
 
         sendMessageButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -46,47 +41,30 @@ public class Chat {
                 createOwnMessage();
             }
         });
+
+        messages = new Messages(context.getFilesDir(), "Felix");
+
+        keyManager = new KeyManager("Felix");
+
+        loadMessages();
     }
 
-    private void savePublicKey(PublicKey publicKey){
-        publicKeyReceiver = publicKey;
-        String publicKeyName = Id.toString() + "_public.key";
-        Encrypter.storePublicKey(publicKey, publicKeyName);
-    }
-
-    public PublicKey getPublicKeyReceiver() {
-        if (publicKeyReceiver == null){
-            publicKeyReceiver = getPublicKeyFromFiles();
-        }
-        return publicKeyReceiver;
-    }
-
-    private PublicKey getPublicKeyFromFiles(){
-        String publicKeyName = Id.toString() + "_public.key";
-        PublicKey pubKey = Encrypter.readPublicKeyFromFile(publicKeyName);
-        if (pubKey == null){
-            pubKey = requestPublicKey();
-        }
-        return pubKey;
-    }
-
-    private PublicKey requestPublicKey(){
-        return publicKeyReceiver;
-    }
 
     public void createOwnMessage(){
 //        Get Message Text and create Message Object
         String currentMessage = messageEntry.getText().toString();
         Message newMessage = new Message(context, currentMessage.length()%2);
         newMessage.setText(currentMessage);
-//        newMessage.setText(currentMessage);
 
 //        Place the message on the screen
         placeNewMessage(newMessage);
 
-        messages.add(newMessage);
+        byte[] encryptedText = newMessage.getEncrypted(keyManager.getOwnPublicKey());
+        long messageTime = newMessage.getCreationTime();
 
-        sendMessage(newMessage);
+        messages.saveNewMessage(encryptedText, messageTime);
+
+        sendMessage(encryptedText, messageTime);
 
     }
 
@@ -94,11 +72,19 @@ public class Chat {
 //        Create a Layout for the message and place it in the main layout
         MessageLayout messageLayout = message.getLayout();
         mainChatLayout.addView(messageLayout);
+
+
+//        Scroll to bottom
+        View lastChild = mainScrollView.getChildAt(mainScrollView.getChildCount() - 1);
+        int bottom = lastChild.getBottom() + mainScrollView.getPaddingBottom();
+        int sy = mainScrollView.getScrollY();
+        int sh = mainScrollView.getHeight();
+        int delta = bottom - (sy +sh);
+
+        mainScrollView.scrollBy(0, delta);
     }
 
-    public void sendMessage(Message messageToSend){
-//        byte[] encryptedBytesToSend = Encrypter.encryptString(messageToSend.textContent, publicKeyReceiver);
-
+    public void sendMessage(byte[] encryptedText, long timeCreated){
         //send..
     }
 
@@ -107,10 +93,27 @@ public class Chat {
     }
 
     private String decryptStringMessage(byte[] encryptedBytes){
-        return new String();
+        return Encrypter.decryptString(encryptedBytes, keyManager.getOwnPrivateKey());
     }
 
     public void updateTimeStamps(){
 //    TODO: update Timestamps
     }
+
+    public void loadMessages(){
+//        Load all the message from the device and show them on the screen
+        HashMap<Long, byte[]> Messages = messages.loadMessages();
+
+        for (Map.Entry<Long, byte[]> message: Messages.entrySet()) {
+            String messageText = decryptStringMessage(message.getValue());
+
+            Message newMessage = new Message(context, 0, message.getKey());
+            newMessage.setText(messageText);
+
+//        Place the message on the screen
+            placeNewMessage(newMessage);
+        }
+
+    }
+
 }
