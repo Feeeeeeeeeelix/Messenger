@@ -11,7 +11,6 @@
         android:id="@+id/linearLayout"
         android:layout_width="0dp"
         android:layout_height="50dp"
-        android:background="#E1BEE7"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -61,7 +60,6 @@
         android:id="@+id/mainScrollView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="#B3E5FC"
         android:fillViewport="true"
         android:padding="20dp"
         android:scrollbars="none"
@@ -74,7 +72,6 @@
             android:id="@+id/mainMessageLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#B2DFDB"
             android:gravity="bottom|fill_horizontal"
             android:orientation="vertical">
 
@@ -153,7 +150,6 @@
         android:id="@+id/linearLayout2"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:background="#FFE0B2"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
