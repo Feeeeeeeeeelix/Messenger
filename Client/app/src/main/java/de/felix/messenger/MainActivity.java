@@ -4,17 +4,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -28,6 +17,16 @@ public class MainActivity extends AppCompatActivity {
         ConstraintLayout mainChatLayout = findViewById(R.id.mainChatFrame);
 
         Chat chat = new Chat(this, mainChatLayout);
+
+        Communication client = new Communication(getApplicationContext(), "open-messenger-application.duckdns.org", 123, "testtopic2", "Pablo", "ETS2isfun");
+
+        /*findViewById(R.id.btn_publish).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                client.publishMessage("Hello, World!");
+            }
+        });*/
+
 
 //        try {
 //            FileInputStream fis = new FileInputStream(new File(getFilesDir(), "test.txt"));
