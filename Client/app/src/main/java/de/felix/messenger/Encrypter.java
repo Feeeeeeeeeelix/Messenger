@@ -96,6 +96,7 @@ public class Encrypter {
             encryptCipher.init(Cipher.ENCRYPT_MODE, givenPublicKey);
 
             byte[] bytesToEncrypt = stringToEncrypt.getBytes(StandardCharsets.UTF_8);
+//            TODO: error while encrypting
 //            byte[] encryptedBytes = encryptCipher.doFinal(bytesToEncrypt);
 
             return bytesToEncrypt;

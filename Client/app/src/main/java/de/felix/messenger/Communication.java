@@ -7,31 +7,26 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.hivemq.client.mqtt.datatypes.MqttQos;
+import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient;
+import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient;
-import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
-
 public class Communication {
 
-    private Context context;
     Mqtt5AsyncClient client;
+    String TOPIC;
+    Chat chatReference;
 
-    String HOST;// = "open-messenger-application.duckdns.org";
-    Integer PORT;// = 123;
-    String TOPIC;// = "testtopic2";
-    String USERNAME;// = "Pablo";
-    String PASSWORD;// = "ETS2isfun";
+    public Communication(Context context, String mqttTopic, Chat chatReference) {
+        String HOST = "open-messenger-application.duckdns.org";
+        Integer PORT = 123;
+        TOPIC = mqttTopic;
+        String USERNAME = "Pablo";
+        String PASSWORD = "ETS2isfun";
 
-    public Communication(Context context, String MQTT_Host_Domain, Integer MQTT_Host_Port, String MQTT_Topic, String Username, String Password) {
-        this.context = context;
-        this.HOST = MQTT_Host_Domain;
-        this.PORT = MQTT_Host_Port;
-        this.TOPIC = MQTT_Topic;
-        this.USERNAME = Username;
-        this.PASSWORD = Password;
+        this.chatReference = chatReference;
 
         boolean new_session;
 
@@ -71,7 +66,7 @@ public class Communication {
                 .send()
                 .whenComplete((connAck, throwable) -> {
                     if (throwable != null) {
-                        log("Connection unsuccesfull");
+                        log("Connection unsuccessful");
                     } else {
                         // setup subscribes
                         client.subscribeWith()
@@ -98,10 +93,11 @@ public class Communication {
         Log.d("Communication.java", text);}
 
     public void onReceiveMessage(String content) {
+        chatReference.receiveMessage(content);
     }
 
     public void publishMessage(String content){
-        if (content.equals("")) {
+        if (!content.equals("")) {
             client.publishWith()
                     .topic(TOPIC)
                     .qos(MqttQos.EXACTLY_ONCE)

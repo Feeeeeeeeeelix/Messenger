@@ -13,12 +13,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        encrypter = new Encrypter(getFilesDir());
+        Encrypter encrypter = new Encrypter(getFilesDir());
         ConstraintLayout mainChatLayout = findViewById(R.id.mainChatFrame);
 
         Chat chat = new Chat(this, mainChatLayout);
 
-        Communication client = new Communication(getApplicationContext(), "open-messenger-application.duckdns.org", 123, "testtopic2", "Pablo", "ETS2isfun");
+//        Communication client = new Communication(getApplicationContext(), "open-messenger-application.duckdns.org", 123, "testtopic2", "Pablo", "ETS2isfun");
 
         /*findViewById(R.id.btn_publish).setOnClickListener(new View.OnClickListener() {
             @Override

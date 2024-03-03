@@ -1,5 +1,6 @@
 package de.felix.messenger;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.icu.util.HebrewCalendar;
 import android.view.View;
@@ -10,6 +11,7 @@ import android.widget.ScrollView;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,6 +25,7 @@ public class Chat {
 
     Messages messages;
     Context context;
+    Communication client;
 
     KeyManager keyManager;
 
@@ -41,10 +44,13 @@ public class Chat {
                 createOwnMessage();
             }
         });
+//        TODO: unique chat id
 
         messages = new Messages(context.getFilesDir(), "Felix");
 
         keyManager = new KeyManager("Felix");
+
+        client = new Communication(context, "chat1", this);
 
         loadMessages();
     }
@@ -53,7 +59,7 @@ public class Chat {
     public void createOwnMessage(){
 //        Get Message Text and create Message Object
         String currentMessage = messageEntry.getText().toString();
-        Message newMessage = new Message(context, currentMessage.length()%2);
+        Message newMessage = new Message(context, 1);
         newMessage.setText(currentMessage);
 
 //        Place the message on the screen
@@ -85,11 +91,24 @@ public class Chat {
     }
 
     public void sendMessage(byte[] encryptedText, long timeCreated){
-        //send..
+
+        @SuppressLint("DefaultLocale")
+        String messageToSend = String.format("%d§%s", timeCreated, new String(encryptedText, StandardCharsets.UTF_8));
+        client.publishMessage(messageToSend);
     }
 
-    public void receiveMessage(){
+    public void receiveMessage(String receivedString){
+        String[] splitted = receivedString.split("§");
+        String messageText = splitted[1];
+        Long timeCreated = Long.valueOf(splitted[0]);
 
+        Message receivedMessage = new Message(context, 0, timeCreated);
+        receivedMessage.setText(messageText);
+
+//        TODO: thread error while receiving message
+//        placeNewMessage(receivedMessage);
+
+        messages.saveNewMessage(messageText.getBytes(StandardCharsets.UTF_8), timeCreated);
     }
 
 
