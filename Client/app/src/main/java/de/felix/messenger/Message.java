@@ -3,6 +3,7 @@ package de.felix.messenger;
 import android.content.Context;
 import android.os.Build;
 
+import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -15,21 +16,18 @@ public class Message {
     String timeCreatedDisplay;
     Instant timeCreated;
 
-    Context context;
     String textContent;
     int side;
 
-    public Message(Context context, int Side){
-        this.context = context;
+    public Message(int Side){
         this.side = Side;
         saveTime();
     }
 
-    public Message(Context context, int Side, long givenCreationTime){
-        this.context = context;
+    public Message(int Side, long givenCreationTime){
         this.side = Side;
 
-        timeCreated = Instant.ofEpochSecond(givenCreationTime);
+        timeCreated = Instant.ofEpochMilli(givenCreationTime);
         timeCreatedDisplay = DateTimeFormatter.ofPattern("HH:mm").withLocale(Locale.getDefault()).withZone(ZoneId.systemDefault()).format(timeCreated);
     }
 
@@ -38,7 +36,7 @@ public class Message {
         timeCreatedDisplay = DateTimeFormatter.ofPattern("HH:mm").withLocale(Locale.getDefault()).withZone(ZoneId.systemDefault()).format(timeCreated);
     }
 
-    public MessageLayout getLayout(){
+    public MessageLayout getLayout(Context context){
         MessageLayout layout = new MessageLayout(context, side);
         layout.setMessageContent(textContent);
         layout.setTimeStamp(timeCreatedDisplay);
@@ -50,14 +48,14 @@ public class Message {
 
     }
 
-
     public byte[] getEncrypted(PublicKey publicKey){
         return Encrypter.encryptString(textContent, publicKey);
     }
 
+
     public long getCreationTime(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            return timeCreated.getEpochSecond();
+            return timeCreated.toEpochMilli();
         }
         return 0;
     }
