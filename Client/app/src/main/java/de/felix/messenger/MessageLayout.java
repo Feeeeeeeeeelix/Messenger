@@ -16,12 +16,11 @@ public class MessageLayout extends LinearLayout {
     TextView timeLabel;
     LinearLayout vertLayout;
     Context context;
-    int side;
 
     public MessageLayout(Context context, Integer Side) {
         super(context);
         this.context = context;
-        this.side = (Side==0) ? Gravity.START: Gravity.END;
+        int side = (Side==0) ? Gravity.START: Gravity.END;
 
 //        Configure top linLayout
         LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -34,6 +33,7 @@ public class MessageLayout extends LinearLayout {
         Space space = new Space(context);
         space.setLayoutParams(new LayoutParams(150, ViewGroup.LayoutParams.MATCH_PARENT));
         space.setMinimumWidth(50);
+//        TODO: space when side=0
 
 //        Define Vertical Layout for message and timestamp
         LinearLayout vertLayout = new LinearLayout(context);

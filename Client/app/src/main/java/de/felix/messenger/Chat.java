@@ -1,9 +1,14 @@
 package de.felix.messenger;
 
+import static java.security.AccessController.getContext;
+
 import android.annotation.SuppressLint;
-import android.content.Context;
-import android.icu.util.HebrewCalendar;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.text.InputType;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -11,8 +16,13 @@ import android.widget.ScrollView;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class Chat {
@@ -24,14 +34,17 @@ public class Chat {
     EditText messageEntry;
 
     Messages messages;
-    Context context;
+    MainActivity context;
     Communication client;
+
+    String clientName;
 
     KeyManager keyManager;
 
-    public Chat(Context context, ConstraintLayout mainLayout) {
+    public Chat(MainActivity context,String clientName, ConstraintLayout mainLayout, Button deleteButton) {
 
         this.context = context;
+        this.clientName = clientName;
         mainChatFrame = mainLayout;
         mainChatLayout = mainLayout.findViewById(R.id.mainMessageLayout);
         mainScrollView = mainLayout.findViewById(R.id.mainScrollView);
@@ -44,11 +57,18 @@ public class Chat {
                 createOwnMessage();
             }
         });
-//        TODO: unique chat id
 
-        messages = new Messages(context.getFilesDir(), "Felix");
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                deleteChatContent();
+            }
+        });
 
-        keyManager = new KeyManager("Felix");
+
+
+        keyManager = new KeyManager(clientName);
+        messages = new Messages(context.getFilesDir(), clientName, keyManager);
 
         client = new Communication(context, "chat1", this);
 
@@ -56,10 +76,12 @@ public class Chat {
     }
 
 
-    public void createOwnMessage(){
+    private void createOwnMessage(){
 //        Get Message Text and create Message Object
         String currentMessage = messageEntry.getText().toString();
-        Message newMessage = new Message(context, 1);
+        if (currentMessage.equals("")) return;
+
+        Message newMessage = new Message(1);
         newMessage.setText(currentMessage);
 
 //        Place the message on the screen
@@ -68,15 +90,15 @@ public class Chat {
         byte[] encryptedText = newMessage.getEncrypted(keyManager.getOwnPublicKey());
         long messageTime = newMessage.getCreationTime();
 
-        messages.saveNewMessage(encryptedText, messageTime);
+        messages.saveNewMessage(encryptedText, messageTime, 1);
 
         sendMessage(encryptedText, messageTime);
 
     }
 
-    public void placeNewMessage(Message message){
+    private void placeNewMessage(Message message){
 //        Create a Layout for the message and place it in the main layout
-        MessageLayout messageLayout = message.getLayout();
+        MessageLayout messageLayout = message.getLayout(context);
         mainChatLayout.addView(messageLayout);
 
 
@@ -90,44 +112,48 @@ public class Chat {
         mainScrollView.scrollBy(0, delta);
     }
 
-    public void sendMessage(byte[] encryptedText, long timeCreated){
-
-        @SuppressLint("DefaultLocale")
+    private void sendMessage(byte[] encryptedText, long timeCreated){
         String messageToSend = String.format("%d§%s", timeCreated, new String(encryptedText, StandardCharsets.UTF_8));
         client.publishMessage(messageToSend);
     }
 
     public void receiveMessage(String receivedString){
         String[] splitted = receivedString.split("§");
-        String messageText = splitted[1];
+        String encryptedText = splitted[1];
+        String messageText = Encrypter.decryptString(encryptedText.getBytes(StandardCharsets.UTF_8), keyManager.getOwnPrivateKey());
         Long timeCreated = Long.valueOf(splitted[0]);
 
-        Message receivedMessage = new Message(context, 0, timeCreated);
+        Message receivedMessage = new Message(0, timeCreated);
         receivedMessage.setText(messageText);
 
-//        TODO: thread error while receiving message
-//        placeNewMessage(receivedMessage);
+        context.runOnUiThread(new Runnable() {
+                                  @Override
+                                  public void run() {
+                                        placeNewMessage(receivedMessage);
+                                  }
+                              }
+        );
 
-        messages.saveNewMessage(messageText.getBytes(StandardCharsets.UTF_8), timeCreated);
+        messages.saveNewMessage(messageText.getBytes(StandardCharsets.UTF_8), timeCreated, 0);
     }
-
 
     public void updateTimeStamps(){
 //    TODO: update Timestamps
     }
 
-    public void loadMessages(){
+    private void loadMessages(){
 //        Load all the message from the device and show them on the screen
-        HashMap<Long, byte[]> Messages = messages.loadMessages();
+        ArrayList<Message> Messages = messages.loadMessages();
 
-        for (Map.Entry<Long, byte[]> message: Messages.entrySet()) {
-            String messageText = Encrypter.decryptString(message.getValue(), keyManager.getOwnPrivateKey());
-
-            Message newMessage = new Message(context, 0, message.getKey());
-            newMessage.setText(messageText);
+        for (Message newMessage: Messages) {
 
 //        Place the message on the screen
             placeNewMessage(newMessage);
         }
+    }
+
+    private void deleteChatContent(){
+        messages.deleteAllMessages();
+        mainChatLayout.removeAllViews();
     }
 }

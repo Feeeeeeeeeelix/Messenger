@@ -21,7 +21,7 @@ public class Communication {
 
     public Communication(Context context, String mqttTopic, Chat chatReference) {
         String HOST = "open-messenger-application.duckdns.org";
-        Integer PORT = 123;
+        int PORT = 123;
         TOPIC = mqttTopic;
         String USERNAME = "Pablo";
         String PASSWORD = "ETS2isfun";

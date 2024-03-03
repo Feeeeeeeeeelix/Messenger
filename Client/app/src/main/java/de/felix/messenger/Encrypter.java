@@ -19,7 +19,9 @@ import java.security.spec.EncodedKeySpec;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
 public class Encrypter {
@@ -102,8 +104,7 @@ public class Encrypter {
             return bytesToEncrypt;
 //            return encryptedBytes;
 
-        } catch (NoSuchPaddingException | NoSuchAlgorithmException |
-                 InvalidKeyException e) {
+        } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException e) {
             throw new RuntimeException(e);
         }
     }
@@ -120,8 +121,7 @@ public class Encrypter {
             return new String(encryptedBytes, StandardCharsets.UTF_8);
 //            return new String(decryptedBytes, StandardCharsets.UTF_8);
 
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException |
-                 InvalidKeyException e) {
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException e) {
             throw new RuntimeException(e);
         }
     }
