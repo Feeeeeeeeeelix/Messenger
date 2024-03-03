@@ -75,7 +75,6 @@ public class Chat {
         loadMessages();
     }
 
-
     private void createOwnMessage(){
 //        Get Message Text and create Message Object
         String currentMessage = messageEntry.getText().toString();
@@ -101,15 +100,16 @@ public class Chat {
         MessageLayout messageLayout = message.getLayout(context);
         mainChatLayout.addView(messageLayout);
 
+        scrollToBottom();
+    }
 
-//        Scroll to bottom
-        View lastChild = mainScrollView.getChildAt(mainScrollView.getChildCount() - 1);
-        int bottom = lastChild.getBottom() + mainScrollView.getPaddingBottom();
-        int sy = mainScrollView.getScrollY();
-        int sh = mainScrollView.getHeight();
-        int delta = bottom - (sy +sh);
-
-        mainScrollView.scrollBy(0, delta);
+    private void scrollToBottom() {
+        mainScrollView.post(new Runnable() {
+            @Override
+            public void run() {
+                mainScrollView.fullScroll(View.FOCUS_DOWN);
+            }
+        });
     }
 
     private void sendMessage(byte[] encryptedText, long timeCreated){
@@ -150,6 +150,7 @@ public class Chat {
 //        Place the message on the screen
             placeNewMessage(newMessage);
         }
+
     }
 
     private void deleteChatContent(){
