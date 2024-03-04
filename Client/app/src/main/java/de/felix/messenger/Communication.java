@@ -73,7 +73,7 @@ public class Communication {
                                 .topicFilter(TOPIC)
                                 .qos(MqttQos.EXACTLY_ONCE)
                                 .callback(publish -> {
-                                    onReceiveMessage(new String(publish.getPayloadAsBytes()));
+                                    onReceiveMessage(publish.getPayloadAsBytes());
                                         }
                                 )
                                 .send()
@@ -92,27 +92,26 @@ public class Communication {
     private void log(String text){
         Log.d("Communication.java", text);}
 
-    public void onReceiveMessage(String content) {
-        chatReference.receiveMessage(content);
+    public void onReceiveMessage(byte[] byteContent) {
+        chatReference.receiveMessage(byteContent);
     }
 
-    public void publishMessage(String content){
-        if (!content.equals("")) {
-            client.publishWith()
-                    .topic(TOPIC)
-                    .qos(MqttQos.EXACTLY_ONCE)
-                    //.retain(false)
-                    .payload(content.getBytes())
-                    .messageExpiryInterval(2628000)
-                    .send()
-                    .whenComplete((publish, throwable) -> {
-                        if (throwable != null) {
-                            log("Publication failed");
-                        } else {
-                            log("Publication successful");
-                        }
-                    });
-        }
+    public void publishMessage(byte[] byteContent){
+        client.publishWith()
+                .topic(TOPIC)
+                .qos(MqttQos.EXACTLY_ONCE)
+                //.retain(false)
+                .payload(byteContent)
+                .messageExpiryInterval(2628000)
+                .send()
+                .whenComplete((publish, throwable) -> {
+                    if (throwable != null) {
+                        log("Publication failed");
+                    } else {
+                        log("Publication successful");
+                    }
+                });
+
     }
 
     public void disconnect(){
