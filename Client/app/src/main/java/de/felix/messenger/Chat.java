@@ -17,6 +17,9 @@ import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Base64;
 
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+
 public class Chat {
 
     ConstraintLayout mainChatFrame;
@@ -33,9 +36,7 @@ public class Chat {
 
     KeyManager keyManager;
 
-    static String JsonKeyContent = "MessageContent";
-    static String JsonKeyTime = "TimeCreated";
-    static String JsonKeySender = "MessageSender";
+
 
     public Chat(MainActivity context,String clientName, ConstraintLayout mainLayout, Button deleteButton) {
 
@@ -61,12 +62,10 @@ public class Chat {
             }
         });
 
+        client = new Communication(context, "chat1", this, clientName);
+        keyManager = new KeyManager(clientName, client);
 
-
-        keyManager = new KeyManager(clientName);
         messages = new Messages(context.getFilesDir(), clientName, keyManager);
-
-        client = new Communication(context, "chat1", this);
 
         loadMessages();
     }
@@ -89,7 +88,119 @@ public class Chat {
         sendMessage(newMessage);
     }
 
+    private void sendMessage(Message messageToSend){
+        if (keyManager.symmetricKey == null){
+            client.requestSymmetricKey(Base64.getEncoder().encodeToString(keyManager.getOwnPublicKey().getEncoded()));
+        }else {
+            client.SendMessage(messageToSend, keyManager.symmetricKey, keyManager.iv, keyManager.symKeyHash);
+        }
+    }
+
+    public void onReceiveMessage(String encodedText, Long timeCreated, String senderName, String symKeyHash){
+        Log.i("Chat", "Received Message");
+        if (!symKeyHash.equals(keyManager.symKeyHash)){
+            client.requestSymmetricKey(Base64.getEncoder().encodeToString(keyManager.getOwnPrivateKey().getEncoded()));
+            return;
+        }
+
+        if (senderName.equals(clientName)) return;
+
+        byte[] encryptedBytes = Base64.getDecoder().decode(encodedText);
+        String messageText = SymmetricEncryption.decryptBytesSymmetric(encryptedBytes, keyManager.symmetricKey, keyManager.iv);
+
+        Message receivedMessage = new Message(0, timeCreated);
+        receivedMessage.setText(messageText);
+
+        context.runOnUiThread(new Runnable() {
+                                  @Override
+                                  public void run() {
+                                      placeNewMessage(receivedMessage);
+                                  }
+                              }
+        );
+
+        messages.saveNewMessage(receivedMessage, keyManager.getOwnPublicKey());
+    }
+
+/*    public void receiveMessage(byte[] receivedBytes){
+        Log.i("Chat", String.format("Received Message : %s", receivedBytes));
+
+        JSONObject obj = null;
+        String messageText;
+        long timeCreated;
+        String messageSender;
+
+        try {
+            obj = new JSONObject(new String(receivedBytes));
+
+            if (obj.has(JsonKeyMessage)){
+                JSONObject messageContent = obj.getJSONObject(JsonKeyMessage);
+
+                messageText = messageContent.getString(JsonKeyContent);
+                timeCreated = Long.parseLong(messageContent.getString(JsonKeyTime));
+                messageSender  = messageContent.getString(JsonKeySender);
+
+            } else if (obj.has(JsonKeyRequest)) {
+                JSONObject requestContent = obj.getJSONObject(JsonKeyRequest);
+                String receiverName = requestContent.getString(JsonKeyRequestName);
+
+                if (receiverName.equals(clientName)){
+
+                }
+            }
+
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
+
+        byte[] encryptedBytes = Base64.getDecoder().decode(messageText);
+        String messageText = Encrypter.decryptString(encryptedBytes, keyManager.getOwnPrivateKey());
+
+
+        Message receivedMessage = new Message(0, timeCreated);
+        receivedMessage.setText(messageText);
+
+    }*/
+
+
+/*    private void requestPublicKeyPartner(){
+
+        JSONObject obj = new JSONObject();
+        try {
+            JSONObject requestContent = new JSONObject();
+            requestContent.put(JsonKeyRequestName, clientName);
+
+            obj.put(JsonKeyRequest);
+
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
+        byte[] sendData = obj.toString().getBytes(StandardCharsets.UTF_8);
+        client.publishMessage(sendData);
+    }
+
+    private void sendOwnPublicKeyToPartner(){
+
+    }*/
+
+    private void loadMessages(){
+        Log.i("Chat", "loading Messages...");
+
+//        Load all the message from the device and show them on the screen
+        ArrayList<Message> Messages = messages.loadMessages();
+
+        for (Message newMessage: Messages) {
+
+//        Place the message on the screen
+            placeNewMessage(newMessage);
+        }
+
+    }
+
     private void placeNewMessage(Message message){
+        Log.i("Chat", "Placing new Message");
 //        Create a Layout for the message and place it in the main layout
         MessageLayout messageLayout = message.getLayout(context);
         mainChatLayout.addView(messageLayout);
@@ -106,85 +217,34 @@ public class Chat {
         });
     }
 
-    private void sendMessage(Message messageToSend){
-        PublicKey privateKeyOfPartner = keyManager.getOwnPublicKey(); //TODO: replace with other key
-        byte[] encryptedBytes = messageToSend.getEncrypted(privateKeyOfPartner);
-        String base64EncodedMessageContent = Base64.getEncoder().encodeToString(encryptedBytes);
-        String timeCreated = new String(String.valueOf(messageToSend.getCreationTime()));
-
-        JSONObject obj = new JSONObject();
-        try {
-            obj.put(JsonKeyContent, base64EncodedMessageContent);
-            obj.put(JsonKeyTime, String.valueOf(messageToSend.getCreationTime()));
-            obj.put(JsonKeySender, clientName);
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-
-        byte[] sendData = obj.toString().getBytes(StandardCharsets.UTF_8);
-        client.publishMessage(sendData);
-    }
-
-    public void receiveMessage(byte[] receivedBytes){
-        Log.i("Chat", String.format("Received Message : %s", receivedBytes));
-
-        JSONObject obj = null;
-        String messageContent;
-        long timeCreated;
-        String messageSender;
-
-        try {
-            obj = new JSONObject(new String(receivedBytes));
-
-            messageContent = obj.getString(JsonKeyContent);
-            timeCreated = Long.parseLong(obj.getString(JsonKeyTime));
-            messageSender  = obj.getString(JsonKeySender);
-
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-
-
-        byte[] encryptedBytes = Base64.getDecoder().decode(messageContent);
-        String messageText = Encrypter.decryptString(encryptedBytes, keyManager.getOwnPrivateKey());
-
-
-        Message receivedMessage = new Message(0, timeCreated);
-        receivedMessage.setText(messageText);
-
-        context.runOnUiThread(new Runnable() {
-                                  @Override
-                                  public void run() {
-                                        placeNewMessage(receivedMessage);
-                                  }
-                              }
-        );
-
-        messages.saveNewMessage(receivedMessage, keyManager.getOwnPublicKey());
-    }
-
-    public void updateTimeStamps(){
-//    TODO: update Timestamps
-    }
-
-    private void loadMessages(){
-        Log.i("Chat", "loading Messages...");
-
-//        Load all the message from the device and show them on the screen
-        ArrayList<Message> Messages = messages.loadMessages();
-
-        for (Message newMessage: Messages) {
-
-//        Place the message on the screen
-            placeNewMessage(newMessage);
-        }
-
-    }
-
     private void deleteChatContent(){
         Log.i("Chat", "Deleting Chat Content");
 
         messages.deleteAllMessages();
         mainChatLayout.removeAllViews();
+    }
+
+
+    public void sendSymmetricKey(String receiverPubKeyString, String receiverName) {
+        Log.i("Chat", "Sending symKey..");
+        if (keyManager.symmetricKey == null){
+//            no sym key
+            Log.i("Chat", "No SymKey to Send");
+            return;
+        }
+        PublicKey receiverKey = Encrypter.createPublicKeyFromBytes(Base64.getDecoder().decode(receiverPubKeyString));
+
+        SecretKey symKey = keyManager.symmetricKey;
+        String symKeyString = Base64.getEncoder().encodeToString(symKey.getEncoded());
+        String symKeyStringEncoded = Base64.getEncoder().encodeToString(Encrypter.encryptString(symKeyString, receiverKey));
+
+        IvParameterSpec iv = keyManager.iv;
+        String ivString = Base64.getEncoder().encodeToString(iv.getIV());
+        String ivStringEncoded = Base64.getEncoder().encodeToString(Encrypter.encryptString(ivString, receiverKey));
+
+        String symHash = keyManager.symKeyHash;
+        String symHashStringEncoded = Base64.getEncoder().encodeToString(Encrypter.encryptString(symHash, receiverKey));
+
+        client.sendSymmetricKey(symKeyStringEncoded, ivStringEncoded, symHashStringEncoded, receiverName);
     }
 }

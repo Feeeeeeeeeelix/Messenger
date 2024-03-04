@@ -34,14 +34,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        try {
-            new SymetricEncryption();
-        } catch (NoSuchAlgorithmException | InvalidKeyException |
-                 InvalidAlgorithmParameterException | NoSuchPaddingException |
-                 IllegalBlockSizeException | BadPaddingException e) {
-            throw new RuntimeException(e);
-        }
-
         nameFile = new File(getFilesDir(), "client-name.txt");
         getUserName();
 
@@ -149,6 +141,7 @@ public class MainActivity extends AppCompatActivity {
     private void initChat(){
 
         Encrypter encrypter = new Encrypter(getFilesDir());
+        SymmetricEncryption symencrypter = new SymmetricEncryption(getFilesDir());
         ConstraintLayout mainChatLayout = findViewById(R.id.mainChatFrame);
         Button deleteChatButton = findViewById(R.id.DeleteChatButton);
 

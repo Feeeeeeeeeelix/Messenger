@@ -63,16 +63,27 @@ public class Encrypter {
         try {
             FileInputStream publicKeyFile = new FileInputStream(new File(filesDir, fileName));
             byte[] pubKeyBytes = publicKeyFile.readAllBytes();
+            Log.i("Encrypter", "Found a PubKey on the device");
 
-            KeyFactory pubKeyFactory = KeyFactory.getInstance("RSA");
+            return createPublicKeyFromBytes(pubKeyBytes);
+
+        } catch (IOException e) {
+            Log.i("Encrypter", "No Public Key File found: "+e.toString());
+            return null;
+        }
+    }
+
+    public static PublicKey createPublicKeyFromBytes(byte[] pubKeyBytes){
+        KeyFactory pubKeyFactory = null;
+        try {
+            pubKeyFactory = KeyFactory.getInstance("RSA");
             EncodedKeySpec pubKeySpec = new X509EncodedKeySpec(pubKeyBytes);
             PublicKey publicKey = pubKeyFactory.generatePublic(pubKeySpec);
-
-            Log.i("Encrypter", "Found a PubKey on the device");
             return publicKey;
 
-        } catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e) {
-            Log.i("Encrypter", "No Public Key File found: "+e.toString());
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+
+            Log.i("Encrypter", "Failed to creating pubkey from bytes");
             return null;
         }
     }

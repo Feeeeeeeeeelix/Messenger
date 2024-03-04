@@ -2,23 +2,36 @@ package de.felix.messenger;
 
 import android.util.Log;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.Base64;
+
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
 
 public class KeyManager {
 
-    private PublicKey publicKeyPartner;
     private PublicKey ownPublicKey;
     private PrivateKey ownPrivateKey;
 
-    String chatIdentifier;
+    public SecretKey symmetricKey;
+    public IvParameterSpec iv;
+    public String symKeyHash;
 
-    public KeyManager(String chatIdentifier) {
+    final String chatIdentifier;
+    Communication client;
+
+    public KeyManager(String chatIdentifier, Communication client) {
         this.chatIdentifier = chatIdentifier;
+        this.client = client;
     }
 
-    public PublicKey getPublicKeyPartner() {
+/*    public PublicKey getPublicKeyPartner() {
 //        Get the pub key of the other person (the receiver of the message that will be encrypted)
         if (publicKeyPartner != null){
             return publicKeyPartner;
@@ -40,8 +53,24 @@ public class KeyManager {
 
     private PublicKey requestPublicKeyPartner(){
 //        TODO: request public key from partner
+
+
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put();
+
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
+        byte[] sendData = obj.toString().getBytes(StandardCharsets.UTF_8);
+        client.publishMessage(sendData);
+
+
+
+
         return publicKeyPartner;
-    }
+    }*/
 
     public PublicKey getOwnPublicKey(){
         Log.d("KeyManager", "Requested own public key");
@@ -93,4 +122,16 @@ public class KeyManager {
         Encrypter.storeKey(ownPublicKey, "own_public.key");
     }
 
+
+    public void saveSymmetricKey(String symKeyString, String symIV, String symKeyHash) {
+        byte[] symmetricKeyBytes = Base64.getDecoder().decode(symKeyString);
+        SecretKey symKey = SymmetricEncryption.createSymKeyFromBytes(symmetricKeyBytes);
+
+        byte[] symIVBytes = Base64.getDecoder().decode(symIV);
+        IvParameterSpec iv = new IvParameterSpec(symIVBytes);
+
+        this.symmetricKey = symKey;
+        this.iv = iv;
+        this.symKeyHash = symKeyHash;
+    }
 }

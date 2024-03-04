@@ -1,5 +1,6 @@
 package de.felix.messenger;
 
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -18,26 +19,18 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 
-public class SymetricEncryption {
-    public SymetricEncryption() throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
-        String inputString = "test";
-
-//        SecretKey key = generateKey();
-//        IvParameterSpec iv = generateIV();
-//        byte[] encryptedBytes = encryptString(inputString, key, iv);
-//        String decryptedString = decryptBytes(encryptedBytes, key, iv);
-//
-//        assert inputString.equals(decryptedString);
+import javax.crypto.spec.SecretKeySpec;
 
 
+public class SymmetricEncryption {
 
-        KeyPair keypar = generateKeyPair();
-        byte[] encryptedBytes = encryptString(inputString, keypar.getPublic());
-        String decryptedString = decryptBytes(encryptedBytes, keypar.getPrivate());
-        assert  inputString.equals(decryptedString);
+    final File baseDir;
 
+    public SymmetricEncryption(File baseDir)  {
+        this.baseDir = baseDir;
 
     }
+
 
     private static SecretKey generateKey() throws NoSuchAlgorithmException {
         KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
@@ -51,28 +44,45 @@ public class SymetricEncryption {
         return new IvParameterSpec(iv);
     }
 
-    public static byte[] encryptString(String input, SecretKey key, IvParameterSpec iv) throws NoSuchPaddingException, NoSuchAlgorithmException,
-            InvalidAlgorithmParameterException, InvalidKeyException,
-            BadPaddingException, IllegalBlockSizeException {
-
-        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-        cipher.init(Cipher.ENCRYPT_MODE, key, iv);
-        return cipher.doFinal(input.getBytes());
-    }
-    public static String decryptBytes(byte[] cipherText, SecretKey key, IvParameterSpec iv) throws NoSuchPaddingException, NoSuchAlgorithmException,
-            InvalidAlgorithmParameterException, InvalidKeyException,
-            BadPaddingException, IllegalBlockSizeException {
-
-        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-        cipher.init(Cipher.DECRYPT_MODE, key, iv);
-        byte[] plainText = cipher.doFinal(cipherText);
-        return new String(plainText);
+    private static String generateKeyHash(SecretKey secretKey){
+        return "";
     }
 
+
+    public static SecretKey createSymKeyFromBytes(byte[] symKeyBytes) {
+        return new SecretKeySpec(symKeyBytes,"AES");
+    }
+
+    public static byte[] encryptStringSymmetric(String input, SecretKey key, IvParameterSpec iv) {
+        try {
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, key, iv);
+            return cipher.doFinal(input.getBytes());
+
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException |
+                 BadPaddingException | IllegalBlockSizeException |
+                 InvalidAlgorithmParameterException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static String decryptBytesSymmetric(byte[] cipherText, SecretKey key, IvParameterSpec iv){
+        try {
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            cipher.init(Cipher.DECRYPT_MODE, key, iv);
+            byte[] plainText = cipher.doFinal(cipherText);
+
+            return new String(plainText);
+
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException |
+                 BadPaddingException | IllegalBlockSizeException |
+                 InvalidAlgorithmParameterException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 
     public static KeyPair generateKeyPair() {
-
         KeyPairGenerator generator = null;
         try {
             generator = KeyPairGenerator.getInstance("RSA");
@@ -84,6 +94,7 @@ public class SymetricEncryption {
 
         return keyPair;
     }
+
     public static byte[] encryptString(String stringToEncrypt, PublicKey givenPublicKey) {
         try {
             Cipher encryptCipher = Cipher.getInstance("RSA");
@@ -125,4 +136,25 @@ public class SymetricEncryption {
             throw new RuntimeException(e);
         }
     }
+
+
+
+    /*public static void saveKey(SecretKey key, File file) throws IOException
+    {
+        char[] hex = encodeHex(key.getEncoded());
+        writeStringToFile(file, String.valueOf(hex));
+    }
+
+    public static SecretKey loadKey(File file) throws IOException
+    {
+        String data = new String(readFileToByteArray(file));
+        byte[] encoded;
+        try {
+            encoded = decodeHex(data.toCharArray());
+        } catch (DecoderException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return new SecretKeySpec(encoded, "AES");
+    }*/
 }
