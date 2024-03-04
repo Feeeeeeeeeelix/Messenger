@@ -1,6 +1,7 @@
 package de.felix.messenger;
 
 import android.os.FileUtils;
+import android.util.Log;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -75,6 +76,8 @@ public class Messages {
             File messageFile = new File(side == 1 ? filesFolderSend: filesFolderReceived , fileName);
             messageFile.getParentFile().mkdirs();
             messageFile.createNewFile();
+
+            Log.d("Encrypter:SaveNewMessage", String.format("Saving in file : %s, bytes=%b", fileName, messageText));
 
             FileOutputStream fos = new FileOutputStream(messageFile);
 
