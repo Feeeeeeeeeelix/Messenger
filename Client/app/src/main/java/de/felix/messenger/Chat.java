@@ -1,14 +1,7 @@
 package de.felix.messenger;
 
-import static java.security.AccessController.getContext;
-
-import android.annotation.SuppressLint;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.text.InputType;
-import android.view.LayoutInflater;
+import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -16,17 +9,13 @@ import android.widget.ScrollView;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 
-import org.w3c.dom.EntityReference;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.security.Key;
+import java.security.PublicKey;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.Base64;
 
 public class Chat {
 
@@ -43,6 +32,10 @@ public class Chat {
     String clientName;
 
     KeyManager keyManager;
+
+    static String JsonKeyContent = "MessageContent";
+    static String JsonKeyTime = "TimeCreated";
+    static String JsonKeySender = "MessageSender";
 
     public Chat(MainActivity context,String clientName, ConstraintLayout mainLayout, Button deleteButton) {
 
@@ -79,6 +72,8 @@ public class Chat {
     }
 
     private void createOwnMessage(){
+        Log.i("Chat", "Creating own Message");
+
 //        Get Message Text and create Message Object
         String currentMessage = messageEntry.getText().toString();
         if (currentMessage.equals("")) return;
@@ -89,13 +84,9 @@ public class Chat {
 //        Place the message on the screen
         placeNewMessage(newMessage);
 
-        byte[] encryptedText =newMessage.getEncrypted(keyManager.getOwnPublicKey());
-        long messageTime = newMessage.getCreationTime();
+        messages.saveNewMessage(newMessage, keyManager.getOwnPublicKey());
 
-        messages.saveNewMessage(encryptedText, messageTime, 1);
-
-        sendMessage(encryptedText, messageTime);
-
+        sendMessage(newMessage);
     }
 
     private void placeNewMessage(Message message){
@@ -115,20 +106,48 @@ public class Chat {
         });
     }
 
-    private void sendMessage(byte[] encryptedText, long timeCreated){
-        String messageToSend = String.format("%d§%s", timeCreated, new String(encryptedText, StandardCharsets.UTF_16));
-        client.publishMessage(messageToSend);
+    private void sendMessage(Message messageToSend){
+        PublicKey privateKeyOfPartner = keyManager.getOwnPublicKey(); //TODO: replace with other key
+        byte[] encryptedBytes = messageToSend.getEncrypted(privateKeyOfPartner);
+        String base64EncodedMessageContent = Base64.getEncoder().encodeToString(encryptedBytes);
+        String timeCreated = new String(String.valueOf(messageToSend.getCreationTime()));
+
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put(JsonKeyContent, base64EncodedMessageContent);
+            obj.put(JsonKeyTime, String.valueOf(messageToSend.getCreationTime()));
+            obj.put(JsonKeySender, clientName);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
+        byte[] sendData = obj.toString().getBytes(StandardCharsets.UTF_8);
+        client.publishMessage(sendData);
     }
 
-    public void receiveMessage(String receivedString){
-        String[] splitted = receivedString.split("§");
-        String encryptedText = splitted[1];
-        byte[] encryptedBytes = encryptedText.getBytes(StandardCharsets.UTF_16);
+    public void receiveMessage(byte[] receivedBytes){
+        Log.i("Chat", String.format("Received Message : %s", receivedBytes));
 
+        JSONObject obj = null;
+        String messageContent;
+        long timeCreated;
+        String messageSender;
+
+        try {
+            obj = new JSONObject(new String(receivedBytes));
+
+            messageContent = obj.getString(JsonKeyContent);
+            timeCreated = Long.parseLong(obj.getString(JsonKeyTime));
+            messageSender  = obj.getString(JsonKeySender);
+
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
+
+        byte[] encryptedBytes = Base64.getDecoder().decode(messageContent);
         String messageText = Encrypter.decryptString(encryptedBytes, keyManager.getOwnPrivateKey());
 
-
-        Long timeCreated = Long.valueOf(splitted[0]);
 
         Message receivedMessage = new Message(0, timeCreated);
         receivedMessage.setText(messageText);
@@ -141,7 +160,7 @@ public class Chat {
                               }
         );
 
-        messages.saveNewMessage(messageText.getBytes(StandardCharsets.UTF_8), timeCreated, 0);
+        messages.saveNewMessage(receivedMessage, keyManager.getOwnPublicKey());
     }
 
     public void updateTimeStamps(){
@@ -149,6 +168,8 @@ public class Chat {
     }
 
     private void loadMessages(){
+        Log.i("Chat", "loading Messages...");
+
 //        Load all the message from the device and show them on the screen
         ArrayList<Message> Messages = messages.loadMessages();
 
@@ -161,6 +182,8 @@ public class Chat {
     }
 
     private void deleteChatContent(){
+        Log.i("Chat", "Deleting Chat Content");
+
         messages.deleteAllMessages();
         mainChatLayout.removeAllViews();
     }
