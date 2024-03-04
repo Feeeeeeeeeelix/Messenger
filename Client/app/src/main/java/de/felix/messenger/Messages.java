@@ -1,12 +1,12 @@
 package de.felix.messenger;
 
-import android.os.FileUtils;
 import android.util.Log;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Comparator;
 
@@ -39,6 +39,7 @@ public class Messages {
 
                     Message newMessage = createMessageFromFileContent(messageBytes, fileName, 1);
                     loadedMessages.add(newMessage);
+                    Log.d("Messages", String.format("Loaded send message: %s", messageBytes));
                 }
             }
 
@@ -51,6 +52,7 @@ public class Messages {
 
                     Message newMessage = createMessageFromFileContent(messageBytes, fileName, 0);
                     loadedMessages.add(newMessage);
+                    Log.d("Messages", String.format("Loaded received message: %s", messageBytes));
                 }
             }
 
@@ -70,18 +72,19 @@ public class Messages {
         return  newMessage;
     }
 
-    public void saveNewMessage(byte[] messageText, long messageTime, int side){
+    public void saveNewMessage(Message newMessage, PublicKey pubKey){
+        Log.i("Messages", "Saving Message on the device...");
         try {
-            String fileName = String.valueOf(messageTime);
+            int side = newMessage.side;
+            String fileName = String.valueOf(newMessage.getCreationTime());
+            byte[] encryptedBytes = newMessage.getEncrypted(pubKey);
+
             File messageFile = new File(side == 1 ? filesFolderSend: filesFolderReceived , fileName);
             messageFile.getParentFile().mkdirs();
             messageFile.createNewFile();
-
-            Log.d("Encrypter:SaveNewMessage", String.format("Saving in file : %s, bytes=%b", fileName, messageText));
-
             FileOutputStream fos = new FileOutputStream(messageFile);
 
-            fos.write(messageText);
+            fos.write(encryptedBytes);
 
         } catch (IOException e) {
             throw new RuntimeException(e);
