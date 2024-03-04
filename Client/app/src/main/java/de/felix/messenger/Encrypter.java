@@ -32,6 +32,16 @@ public class Encrypter {
         Encrypter.filesDir = filesDir;
     }
 
+    public static void storeKey(Key key, String fileName){
+        try {
+            FileOutputStream publicKeyFile = new FileOutputStream(new File(filesDir, fileName));
+            publicKeyFile.write(key.getEncoded());
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static KeyPair generateKeyPair() {
 
         KeyPairGenerator generator = null;
@@ -44,19 +54,6 @@ public class Encrypter {
         KeyPair keyPair = generator.generateKeyPair();
 
         return keyPair;
-
-//        privateKey = keyPair.getPrivate();
-//        publicKey = keyPair.getPublic();
-    }
-
-    public static void storeKey(Key key, String fileName){
-        try {
-            FileOutputStream publicKeyFile = new FileOutputStream(new File(filesDir, fileName));
-            publicKeyFile.write(key.getEncoded());
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public static PublicKey readPublicKeyFromFile(String fileName) {
@@ -99,12 +96,16 @@ public class Encrypter {
 
             byte[] bytesToEncrypt = stringToEncrypt.getBytes(StandardCharsets.UTF_8);
 //            TODO: error while encrypting
-//            byte[] encryptedBytes = encryptCipher.doFinal(bytesToEncrypt);
+            byte[] encryptedBytes = encryptCipher.doFinal(bytesToEncrypt);
 
-            return bytesToEncrypt;
-//            return encryptedBytes;
+//            return bytesToEncrypt;
+            return encryptedBytes;
 
         } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalBlockSizeException e) {
+            throw new RuntimeException(e);
+        } catch (BadPaddingException e) {
             throw new RuntimeException(e);
         }
     }
@@ -116,12 +117,16 @@ public class Encrypter {
 
             decryptCypher.init(Cipher.DECRYPT_MODE, privateKey);
 
-//            byte[] decryptedBytes = decryptCypher.doFinal(encryptedBytes);
+            byte[] decryptedBytes = decryptCypher.doFinal(encryptedBytes);
 
-            return new String(encryptedBytes, StandardCharsets.UTF_8);
-//            return new String(decryptedBytes, StandardCharsets.UTF_8);
+//            return new String(encryptedBytes, StandardCharsets.UTF_8);
+            return new String(decryptedBytes, StandardCharsets.UTF_8);
 
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalBlockSizeException e) {
+            throw new RuntimeException(e);
+        } catch (BadPaddingException e) {
             throw new RuntimeException(e);
         }
     }

@@ -15,6 +15,13 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -26,6 +33,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        try {
+            new SymetricEncryption();
+        } catch (NoSuchAlgorithmException | InvalidKeyException |
+                 InvalidAlgorithmParameterException | NoSuchPaddingException |
+                 IllegalBlockSizeException | BadPaddingException e) {
+            throw new RuntimeException(e);
+        }
 
         nameFile = new File(getFilesDir(), "client-name.txt");
         getUserName();
@@ -81,7 +96,6 @@ public class MainActivity extends AppCompatActivity {
             promptUserForName();
         }
     }
-
 
     private void promptUserForName(){
 //        https://stackoverflow.com/questions/10903754/input-text-dialog-android

@@ -14,6 +14,11 @@ public class KeyManager {
 
     public KeyManager(String chatIdentifier) {
         this.chatIdentifier = chatIdentifier;
+
+        PublicKey p = getOwnPublicKey();
+        PublicKey p1 = getOwnPublicKey();
+
+        assert p.equals(p1);
     }
 
     public PublicKey getPublicKeyPartner() {
@@ -42,9 +47,9 @@ public class KeyManager {
     }
 
     public PublicKey getOwnPublicKey(){
-        if (ownPublicKey != null){
-            return ownPublicKey;
-        }
+//        if (ownPublicKey != null){
+//            return ownPublicKey;
+//        }
 
 //        Load the public key from the device
         String publicKeyName =   "own_public.key";

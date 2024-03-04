@@ -16,11 +16,14 @@ import android.widget.ScrollView;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import org.w3c.dom.EntityReference;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -86,7 +89,7 @@ public class Chat {
 //        Place the message on the screen
         placeNewMessage(newMessage);
 
-        byte[] encryptedText = newMessage.getEncrypted(keyManager.getOwnPublicKey());
+        byte[] encryptedText =newMessage.getEncrypted(keyManager.getOwnPublicKey());
         long messageTime = newMessage.getCreationTime();
 
         messages.saveNewMessage(encryptedText, messageTime, 1);
@@ -113,14 +116,18 @@ public class Chat {
     }
 
     private void sendMessage(byte[] encryptedText, long timeCreated){
-        String messageToSend = String.format("%d§%s", timeCreated, new String(encryptedText, StandardCharsets.UTF_8));
+        String messageToSend = String.format("%d§%s", timeCreated, new String(encryptedText, StandardCharsets.UTF_16));
         client.publishMessage(messageToSend);
     }
 
     public void receiveMessage(String receivedString){
         String[] splitted = receivedString.split("§");
         String encryptedText = splitted[1];
-        String messageText = Encrypter.decryptString(encryptedText.getBytes(StandardCharsets.UTF_8), keyManager.getOwnPrivateKey());
+        byte[] encryptedBytes = encryptedText.getBytes(StandardCharsets.UTF_16);
+
+        String messageText = Encrypter.decryptString(encryptedBytes, keyManager.getOwnPrivateKey());
+
+
         Long timeCreated = Long.valueOf(splitted[0]);
 
         Message receivedMessage = new Message(0, timeCreated);
