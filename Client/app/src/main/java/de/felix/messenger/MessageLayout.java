@@ -27,11 +27,12 @@ public class MessageLayout extends LinearLayout {
         layoutParams.setMargins(0 ,10,0,10);
         this.setLayoutParams(layoutParams);
         setOrientation(HORIZONTAL);
-//        setBackgroundColor(0xFFB6B9F3);
+        setBackgroundColor(0xFFB6B9F3);
         setGravity(side);
 
         Space space = new Space(context);
-        space.setLayoutParams(new LayoutParams(150, ViewGroup.LayoutParams.MATCH_PARENT));
+        space.setLayoutParams(new LayoutParams(150, ViewGroup.LayoutParams.MATCH_PARENT, 0));
+        space.setBackgroundColor(0xFFFFE0E0);
         space.setMinimumWidth(50);
 //        TODO: space when side=0
 
@@ -49,8 +50,8 @@ public class MessageLayout extends LinearLayout {
             addView(vertLayout);
         }
         else{
-            addView(vertLayout);
-            addView(space);
+            addView(vertLayout, 0);
+            addView(space, 1);
         }
 
 //        Define timestamp textlabel
