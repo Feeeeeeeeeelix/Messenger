@@ -31,7 +31,7 @@ public class Encrypter {
     static File filesDir;
 
     public Encrypter(File filesDir) {
-        Encrypter.filesDir = filesDir;
+        Encrypter.filesDir = new File(filesDir, "Keys");
     }
 
     public static KeyPair generateKeyPair() {
@@ -50,7 +50,9 @@ public class Encrypter {
 
     public static void storeKey(Key key, String fileName){
         try {
-            FileOutputStream publicKeyFile = new FileOutputStream(new File(filesDir, fileName));
+            File keyFile = new File(filesDir, fileName);
+            keyFile.getParentFile().mkdirs();
+            FileOutputStream publicKeyFile = new FileOutputStream(keyFile);
             publicKeyFile.write(key.getEncoded());
             publicKeyFile.close();
             Log.i("Encrypter", "Stored Key on the device");
