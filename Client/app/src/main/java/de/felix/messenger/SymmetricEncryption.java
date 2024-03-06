@@ -32,19 +32,25 @@ public class SymmetricEncryption {
     }
 
 
-    private static SecretKey generateKey() throws NoSuchAlgorithmException {
-        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
-        keyGenerator.init(128);
-        return keyGenerator.generateKey();
+    public static SecretKey generateKey()  {
+        KeyGenerator keyGenerator = null;
+        try {
+            keyGenerator = KeyGenerator.getInstance("AES");
+            keyGenerator.init(128);
+            return keyGenerator.generateKey();
+
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    private static IvParameterSpec generateIV(){
+    public static IvParameterSpec generateIV(){
         byte[] iv = new byte[16];
         new SecureRandom().nextBytes(iv);
         return new IvParameterSpec(iv);
     }
 
-    private static String generateKeyHash(SecretKey secretKey){
+    public static String generateKeyHash(SecretKey secretKey){
         return "";
     }
 

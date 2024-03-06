@@ -122,6 +122,13 @@ public class KeyManager {
         Encrypter.storeKey(ownPublicKey, "own_public.key");
     }
 
+    public void createSymmetricKey(){
+        this.symmetricKey = SymmetricEncryption.generateKey();
+        this.iv = SymmetricEncryption.generateIV();
+        this.symKeyHash = SymmetricEncryption.generateKeyHash(symmetricKey);
+
+    }
+
 
     public void saveSymmetricKey(String symKeyString, String symIV, String symKeyHash) {
         byte[] symmetricKeyBytes = Base64.getDecoder().decode(symKeyString);
