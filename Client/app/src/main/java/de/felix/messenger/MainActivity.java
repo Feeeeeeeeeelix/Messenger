@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 FileInputStream fis = new FileInputStream(nameFile);
                 this.clientName = new String(fis.readAllBytes());
-
+                fis.close();
                 initChat();
 
             } catch (IOException e) {
@@ -132,6 +132,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             FileOutputStream fos = new FileOutputStream(nameFile);
             fos.write(this.clientName.getBytes(StandardCharsets.UTF_8));
+            fos.close();
 
         } catch (IOException e) {
             throw new RuntimeException(e);

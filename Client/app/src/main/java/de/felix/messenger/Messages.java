@@ -36,10 +36,11 @@ public class Messages {
 
                     byte[] messageBytes = fis.readAllBytes();
                     String fileName = messageFile.getName();
+                    fis.close();
 
                     Message newMessage = createMessageFromFileContent(messageBytes, fileName, 1);
                     loadedMessages.add(newMessage);
-                    Log.d("Messages", String.format("Loaded send message: %s", messageBytes));
+                    Log.d("Messages", "Loaded send message");
                 }
             }
 
@@ -49,10 +50,11 @@ public class Messages {
 
                     byte[] messageBytes = fis.readAllBytes();
                     String fileName = messageFile.getName();
+                    fis.close();
 
                     Message newMessage = createMessageFromFileContent(messageBytes, fileName, 0);
                     loadedMessages.add(newMessage);
-                    Log.d("Messages", String.format("Loaded received message: %s", messageBytes));
+                    Log.d("Messages", "Loaded received message");
                 }
             }
 
@@ -85,6 +87,7 @@ public class Messages {
             FileOutputStream fos = new FileOutputStream(messageFile);
 
             fos.write(encryptedBytes);
+            fos.close();
 
         } catch (IOException e) {
             throw new RuntimeException(e);

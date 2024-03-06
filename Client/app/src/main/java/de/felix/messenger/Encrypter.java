@@ -52,6 +52,7 @@ public class Encrypter {
         try {
             FileOutputStream publicKeyFile = new FileOutputStream(new File(filesDir, fileName));
             publicKeyFile.write(key.getEncoded());
+            publicKeyFile.close();
             Log.i("Encrypter", "Stored Key on the device");
 
         } catch (IOException e) {
@@ -63,6 +64,7 @@ public class Encrypter {
         try {
             FileInputStream publicKeyFile = new FileInputStream(new File(filesDir, fileName));
             byte[] pubKeyBytes = publicKeyFile.readAllBytes();
+            publicKeyFile.close();
             Log.i("Encrypter", "Found a PubKey on the device");
 
             return createPublicKeyFromBytes(pubKeyBytes);
