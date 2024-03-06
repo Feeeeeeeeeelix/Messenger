@@ -79,7 +79,7 @@ public class Communication {
                 .buildAsync();
 
         client.connectWith()
-                .cleanStart(new_session) // new_session
+                .cleanStart(true) // new_session
                 .sessionExpiryInterval(2628000)
                 .simpleAuth()
                 .username(USERNAME)
@@ -110,8 +110,6 @@ public class Communication {
                     }
                 });
     }
-
-
 
     public void disconnect(){
         client.disconnect();
