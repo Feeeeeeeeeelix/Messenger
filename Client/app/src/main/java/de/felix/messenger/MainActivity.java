@@ -15,17 +15,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 
 public class MainActivity extends AppCompatActivity {
 
-    Encrypter encrypter;
     String clientName;
     File nameFile;
 
@@ -36,40 +28,6 @@ public class MainActivity extends AppCompatActivity {
 
         nameFile = new File(getFilesDir(), "client-name.txt");
         getUserName();
-
-//        Communication client = new Communication(getApplicationContext(), "open-messenger-application.duckdns.org", 123, "testtopic2", "Pablo", "ETS2isfun");
-
-        /*findViewById(R.id.btn_publish).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                client.publishMessage("Hello, World!");
-            }
-        });*/
-
-
-//        try {
-//            FileInputStream fis = new FileInputStream(new File(getFilesDir(), "test.txt"));
-//            try {
-//                fis.readAllBytes();
-//            } catch (IOException e) {
-//                throw new RuntimeException(e);
-//            }
-//        } catch (FileNotFoundException e) {
-//            throw new RuntimeException(e);
-//        }
-//
-//
-//        FileOutputStream fos = null;
-//        try {
-//            fos = new FileOutputStream(new File(getFilesDir(), "test.txt"));
-//        } catch (FileNotFoundException e) {
-//            throw new RuntimeException(e);
-//        }
-//        try {
-//            fos.write("das ist text".getBytes(StandardCharsets.UTF_8));
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
 
     }
 
