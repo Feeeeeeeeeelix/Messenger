@@ -1,14 +1,17 @@
 package de.felix.messenger;
 
+import android.util.Log;
+import android.widget.ImageView;
+
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.security.SecureRandom;
 
 import javax.crypto.BadPaddingException;
@@ -24,11 +27,16 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class SymmetricEncryption {
 
-    final File baseDir;
+    static File baseDir;
+    static String symKeyFileName;
+    static String symIVFileName;
+    static String symHashFileName;
 
     public SymmetricEncryption(File baseDir)  {
-        this.baseDir = baseDir;
-
+        SymmetricEncryption.baseDir = new File(baseDir, "Keys");
+        symKeyFileName = "SymmetricKey.key";
+        symIVFileName = "SymmetricIV.key";
+        symHashFileName = "SymmetricHash.key";
     }
 
 
@@ -51,6 +59,7 @@ public class SymmetricEncryption {
     }
 
     public static String generateKeyHash(SecretKey secretKey){
+//        TODO: generate key hash
         return "";
     }
 
@@ -87,59 +96,72 @@ public class SymmetricEncryption {
         }
     }
 
-
-    public static KeyPair generateKeyPair() {
-        KeyPairGenerator generator = null;
+    public static void saveSymKeyInFile(SecretKey symKey, IvParameterSpec iv, String symKeyHash) {
         try {
-            generator = KeyPairGenerator.getInstance("RSA");
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-        generator.initialize(2048);
-        KeyPair keyPair = generator.generateKeyPair();
+            FileOutputStream symKeyFile = new FileOutputStream(new File(baseDir, symKeyFileName));
+            symKeyFile.write(symKey.getEncoded());
+            symKeyFile.close();
 
-        return keyPair;
-    }
+            FileOutputStream ivFile = new FileOutputStream(new File(baseDir, symIVFileName));
+            ivFile.write(iv.getIV());
+            ivFile.close();
 
-    public static byte[] encryptString(String stringToEncrypt, PublicKey givenPublicKey) {
-        try {
-            Cipher encryptCipher = Cipher.getInstance("RSA");
-            encryptCipher.init(Cipher.ENCRYPT_MODE, givenPublicKey);
+            FileOutputStream symHashFile = new FileOutputStream(new File(baseDir, symHashFileName));
+            symHashFile.write(symKeyHash.getBytes(StandardCharsets.UTF_8));
+            symHashFile.close();
+            Log.i("SymmetricEncryption", "Stored SymKeys on the device");
 
-            byte[] bytesToEncrypt = stringToEncrypt.getBytes(StandardCharsets.UTF_8);
-//            TODO: error while encrypting
-            byte[] encryptedBytes = encryptCipher.doFinal(bytesToEncrypt);
-
-//            return bytesToEncrypt;
-            return encryptedBytes;
-
-        } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalBlockSizeException e) {
-            throw new RuntimeException(e);
-        } catch (BadPaddingException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static String decryptBytes(byte[] encryptedBytes, PrivateKey privateKey) {
+    public static SecretKey loadSymKeyFromFile() {
         try {
-            Cipher decryptCypher = null;
-            decryptCypher = Cipher.getInstance("RSA");
+            FileInputStream symKeyFile = new FileInputStream(new File(baseDir, symKeyFileName));
+            byte[] symKeyBytes = symKeyFile.readAllBytes();
+            SecretKey symKey = createSymKeyFromBytes(symKeyBytes);
+            symKeyFile.close();
 
-            decryptCypher.init(Cipher.DECRYPT_MODE, privateKey);
+            Log.i("SymmetricEncryption", "Loaded SymKey on the device");
+            return symKey;
 
-            byte[] decryptedBytes = decryptCypher.doFinal(encryptedBytes);
 
-//            return new String(encryptedBytes, StandardCharsets.UTF_8);
-            return new String(decryptedBytes, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            Log.w("SymmetricEncription", "No symkey found on the device "+e.toString());
+            return null;
+        }
+    }
 
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalBlockSizeException e) {
-            throw new RuntimeException(e);
-        } catch (BadPaddingException e) {
-            throw new RuntimeException(e);
+    public static IvParameterSpec loadIVFromFile() {
+        try {
+
+            FileInputStream ivFile = new FileInputStream(new File(baseDir, symIVFileName));
+            byte[] symIVBytes = ivFile.readAllBytes();
+            IvParameterSpec iv = new IvParameterSpec(symIVBytes);
+            ivFile.close();
+
+            Log.i("SymmetricEncryption", "Loaded SymKeys on the device");
+            return iv;
+
+        } catch (IOException e) {
+            Log.w("SymmetricEncription", "No iv found on the device "+e.toString());
+            return null;
+        }
+    }
+
+    public static String loadSymHashFromFile() {
+        try {
+            FileInputStream symHashFile = new FileInputStream(new File(baseDir, symHashFileName));
+            String symHash = new String(symHashFile.readAllBytes());
+            symHashFile.close();
+
+            Log.i("SymmetricEncryption", "Loaded SymKeys on the device");
+            return symHash;
+
+        } catch (IOException e) {
+            Log.w("SymmetricEncription", "No symhash found on the device "+e.toString());
+            return null;
         }
     }
 
