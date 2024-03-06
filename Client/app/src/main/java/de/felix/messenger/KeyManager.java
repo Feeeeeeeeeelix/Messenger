@@ -29,48 +29,11 @@ public class KeyManager {
     public KeyManager(String chatIdentifier, Communication client) {
         this.chatIdentifier = chatIdentifier;
         this.client = client;
+
+
+
+        loadSymKeysFromFile();
     }
-
-/*    public PublicKey getPublicKeyPartner() {
-//        Get the pub key of the other person (the receiver of the message that will be encrypted)
-        if (publicKeyPartner != null){
-            return publicKeyPartner;
-        }
-
-//          Load Key from file or request it if it does not exist
-        String publicKeyName = chatIdentifier + "_public.key";
-        PublicKey pubKey = Encrypter.readPublicKeyFromFile(publicKeyName);
-        if (pubKey != null){
-            return pubKey;
-        }
-
-//        The key does not exist. Request ist from the partner
-        pubKey = requestPublicKeyPartner();
-        Encrypter.storeKey(pubKey, publicKeyName);
-
-        return pubKey;
-    }
-
-    private PublicKey requestPublicKeyPartner(){
-//        TODO: request public key from partner
-
-
-        JSONObject obj = new JSONObject();
-        try {
-            obj.put();
-
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-
-        byte[] sendData = obj.toString().getBytes(StandardCharsets.UTF_8);
-        client.publishMessage(sendData);
-
-
-
-
-        return publicKeyPartner;
-    }*/
 
     public PublicKey getOwnPublicKey(){
         Log.d("KeyManager", "Requested own public key");
@@ -123,22 +86,41 @@ public class KeyManager {
     }
 
     public void createSymmetricKey(){
+        Log.d("KeyManager", "Generation Sym Key");
         this.symmetricKey = SymmetricEncryption.generateKey();
         this.iv = SymmetricEncryption.generateIV();
         this.symKeyHash = SymmetricEncryption.generateKeyHash(symmetricKey);
 
+        SymmetricEncryption.saveSymKeyInFile(symmetricKey, iv, symKeyHash);
     }
 
-
     public void saveSymmetricKey(String symKeyString, String symIV, String symKeyHash) {
+        Log.i("KeyManager", "Saving symkey on the device");
         byte[] symmetricKeyBytes = Base64.getDecoder().decode(symKeyString);
         SecretKey symKey = SymmetricEncryption.createSymKeyFromBytes(symmetricKeyBytes);
 
         byte[] symIVBytes = Base64.getDecoder().decode(symIV);
         IvParameterSpec iv = new IvParameterSpec(symIVBytes);
 
+        SymmetricEncryption.saveSymKeyInFile(symKey, iv, symKeyHash);
+
         this.symmetricKey = symKey;
         this.iv = iv;
         this.symKeyHash = symKeyHash;
+    }
+
+    public void loadSymKeysFromFile(){
+        Log.i("KeyManager", "Loading symkeys from the device");
+        SecretKey symKey = SymmetricEncryption.loadSymKeyFromFile();
+        IvParameterSpec iv = SymmetricEncryption.loadIVFromFile();
+        String symHash = SymmetricEncryption.loadSymHashFromFile();
+
+        if (symHash != null){
+            Log.d("KeyManager", "found symkeys");
+            this.symmetricKey = symKey;
+            this.iv = iv;
+            this.symKeyHash = symHash;
+        }
+
     }
 }
