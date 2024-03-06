@@ -88,7 +88,7 @@ public class Communication {
                 .send()
                 .whenComplete((connAck, throwable) -> {
                     if (throwable != null) {
-                        log("Connection unsuccessful");
+                        Log.e("Communication", "Connection unsuccessful");
                     } else {
                         // setup subscribes
                         client.subscribeWith()
@@ -101,18 +101,17 @@ public class Communication {
                                 .send()
                                 .whenComplete((subAck, throwable2) -> {
                                     if (throwable2 != null) {
-                                        log("Subscribing unsuccessful: " + subAck + ",, " + throwable2);
+                                        Log.e("Communication","Subscribing unsuccessful: " + subAck + ",, " + throwable2);
                                     } else {
                                         // Handle successful subscription, e.g. logging or incrementing a metric
-                                        log("Subscribing successful: " + subAck);
+                                        Log.d("Communication", "Subscribing successful: " + subAck);
                                     }
                                 });
                     }
                 });
     }
 
-    private void log(String text){
-        Log.d("Communication.java", text);}
+
 
     public void disconnect(){
         client.disconnect();
@@ -123,6 +122,7 @@ public class Communication {
 
         try {
             JSONObject obj = new JSONObject(new String(byteContent));
+            Log.d("Communication", String.format("Received json : %s", obj.toString()));
 
             if (obj.has(JsonKeyTypeMessage)){
                 JSONObject messageContent = obj.getJSONObject(JsonKeyTypeMessage);
@@ -202,7 +202,7 @@ public class Communication {
     }
 
     public void publishMessage(byte[] byteContent){
-        Log.i("Communication", String.format("Publishing bytes: %s", new String(byteContent)));
+        Log.d("Communication", String.format("Publishing bytes: %s", new String(byteContent)));
         client.publishWith()
                 .topic(TOPIC)
                 .qos(MqttQos.EXACTLY_ONCE)
@@ -212,16 +212,15 @@ public class Communication {
                 .send()
                 .whenComplete((publish, throwable) -> {
                     if (throwable != null) {
-                        log("Publication failed");
+                        Log.e("Communication", "Publication failed: "+throwable);
                     } else {
-                        log("Publication successful");
+                        Log.d("Communication", "Publication successful");
                     }
                 });
-
     }
 
     public void requestSymmetricKey(String publicKeyString){
-        Log.i("Communication", "Requesting SymKey");
+        Log.d("Communication", "Requesting SymKey");
         JSONObject obj = new JSONObject();
         try {
             JSONObject requestContent = new JSONObject();
@@ -240,7 +239,7 @@ public class Communication {
 
 
     public void sendSymmetricKey(String symKeyString,String symIVString,String symKeyHash, String receiverName){
-        Log.i("Communication", "Sending SymKey");
+        Log.d("Communication", "Sending SymKey");
         JSONObject obj = new JSONObject();
         try {
             JSONObject symKeyContent = new JSONObject();
@@ -250,7 +249,7 @@ public class Communication {
             symKeyContent.put(JsonKeySymIV, symIVString);
             symKeyContent.put(JsonKeySymKeyHash, symKeyHash);
 
-            obj.put(JsonKeyTypeRequest, symKeyContent);
+            obj.put(JsonKeyTypeSymKey, symKeyContent);
 
         } catch (JSONException e) {
             throw new RuntimeException(e);
