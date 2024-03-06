@@ -9,10 +9,7 @@ import android.widget.ScrollView;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.nio.charset.StandardCharsets;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -23,6 +20,7 @@ import java.util.TimerTask;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
+
 
 public class Chat {
 
@@ -166,68 +164,29 @@ public class Chat {
         messages.saveNewMessage(receivedMessage, keyManager.getOwnPublicKey());
     }
 
-/*    public void receiveMessage(byte[] receivedBytes){
-        Log.i("Chat", String.format("Received Message : %s", receivedBytes));
 
-        JSONObject obj = null;
-        String messageText;
-        long timeCreated;
-        String messageSender;
-
-        try {
-            obj = new JSONObject(new String(receivedBytes));
-
-            if (obj.has(JsonKeyMessage)){
-                JSONObject messageContent = obj.getJSONObject(JsonKeyMessage);
-
-                messageText = messageContent.getString(JsonKeyContent);
-                timeCreated = Long.parseLong(messageContent.getString(JsonKeyTime));
-                messageSender  = messageContent.getString(JsonKeySender);
-
-            } else if (obj.has(JsonKeyRequest)) {
-                JSONObject requestContent = obj.getJSONObject(JsonKeyRequest);
-                String receiverName = requestContent.getString(JsonKeyRequestName);
-
-                if (receiverName.equals(clientName)){
-
-                }
-            }
-
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
+    public void sendSymmetricKey(String receiverPubKeyString, String receiverName) {
+        Log.i("Chat", "Sending symKey..");
+        if (keyManager.symmetricKey == null){
+//            no sym key
+            Log.i("Chat", "No SymKey to Send");
+            return;
         }
+        PublicKey receiverKey = Encrypter.createPublicKeyFromBytes(Base64.getDecoder().decode(receiverPubKeyString));
 
+        SecretKey symKey = keyManager.symmetricKey;
+        String symKeyString = Base64.getEncoder().encodeToString(symKey.getEncoded());
+        String symKeyStringEncoded = Base64.getEncoder().encodeToString(Encrypter.encryptString(symKeyString, receiverKey));
 
-        byte[] encryptedBytes = Base64.getDecoder().decode(messageText);
-        String messageText = Encrypter.decryptString(encryptedBytes, keyManager.getOwnPrivateKey());
+        IvParameterSpec iv = keyManager.iv;
+        String ivString = Base64.getEncoder().encodeToString(iv.getIV());
+        String ivStringEncoded = Base64.getEncoder().encodeToString(Encrypter.encryptString(ivString, receiverKey));
 
+        String symHash = keyManager.symKeyHash;
+        String symHashStringEncoded = Base64.getEncoder().encodeToString(Encrypter.encryptString(symHash, receiverKey));
 
-        Message receivedMessage = new Message(0, timeCreated);
-        receivedMessage.setText(messageText);
-
-    }*/
-
-
-/*    private void requestPublicKeyPartner(){
-
-        JSONObject obj = new JSONObject();
-        try {
-            JSONObject requestContent = new JSONObject();
-            requestContent.put(JsonKeyRequestName, clientName);
-
-            obj.put(JsonKeyRequest);
-
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-
-        byte[] sendData = obj.toString().getBytes(StandardCharsets.UTF_8);
-        client.publishMessage(sendData);
+        client.sendSymmetricKey(symKeyStringEncoded, ivStringEncoded, symHashStringEncoded, receiverName);
     }
-
-    private void sendOwnPublicKeyToPartner(){
-
-    }*/
 
     private void loadMessages(){
         Log.i("Chat", "loading Messages...");
@@ -266,29 +225,5 @@ public class Chat {
 
         messages.deleteAllMessages();
         mainChatLayout.removeAllViews();
-    }
-
-
-    public void sendSymmetricKey(String receiverPubKeyString, String receiverName) {
-        Log.i("Chat", "Sending symKey..");
-        if (keyManager.symmetricKey == null){
-//            no sym key
-            Log.i("Chat", "No SymKey to Send");
-            return;
-        }
-        PublicKey receiverKey = Encrypter.createPublicKeyFromBytes(Base64.getDecoder().decode(receiverPubKeyString));
-
-        SecretKey symKey = keyManager.symmetricKey;
-        String symKeyString = Base64.getEncoder().encodeToString(symKey.getEncoded());
-        String symKeyStringEncoded = Base64.getEncoder().encodeToString(Encrypter.encryptString(symKeyString, receiverKey));
-
-        IvParameterSpec iv = keyManager.iv;
-        String ivString = Base64.getEncoder().encodeToString(iv.getIV());
-        String ivStringEncoded = Base64.getEncoder().encodeToString(Encrypter.encryptString(ivString, receiverKey));
-
-        String symHash = keyManager.symKeyHash;
-        String symHashStringEncoded = Base64.getEncoder().encodeToString(Encrypter.encryptString(symHash, receiverKey));
-
-        client.sendSymmetricKey(symKeyStringEncoded, ivStringEncoded, symHashStringEncoded, receiverName);
     }
 }
