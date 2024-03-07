@@ -3,6 +3,7 @@ package de.felix.messenger;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Typeface;
 import android.view.Gravity;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -17,7 +18,7 @@ public class MessageLayout extends LinearLayout {
     LinearLayout vertLayout;
     Context context;
 
-    public MessageLayout(Context context, Integer Side) {
+    public MessageLayout(Context context, String messageText, String senderName, Integer Side) {
         super(context);
         this.context = context;
         int side = (Side==0) ? Gravity.START: Gravity.END;
@@ -30,7 +31,6 @@ public class MessageLayout extends LinearLayout {
 //        setBackgroundColor(0xFFB6B9F3);
         setGravity(side);
 
-//        TODO: sender name over message test
 
         Space space = new Space(context);
         space.setLayoutParams(new LayoutParams(150, ViewGroup.LayoutParams.MATCH_PARENT, 0));
@@ -38,17 +38,41 @@ public class MessageLayout extends LinearLayout {
         space.setMinimumWidth(50);
 //        TODO: space when side=0
 
+
+
 //        Define Vertical Layout for message and timestamp
         LinearLayout vertLayout = new LinearLayout(context);
         vertLayout.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 0));
         vertLayout.setOrientation(VERTICAL);
         vertLayout.setBackgroundColor(0xFF7689F3);
-//        vertLayout.setBackground(R.drawable.message_background_right);
-//        TODO: set 9patch image as message background
-
         vertLayout.setGravity(side);
         vertLayout.setPadding(20, 20,20,20);
         this.vertLayout = vertLayout;
+
+//        vertLayout.setBackground(R.drawable.message_background_right);
+//        TODO: set 9patch image as message background
+
+
+        TextView senderLabel = new TextView(context);
+        senderLabel.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+        senderLabel.setTypeface(null, Typeface.BOLD);
+        senderLabel.setGravity(Gravity.START);
+        senderLabel.setText(senderName);
+        vertLayout.addView(senderLabel,0);
+
+
+        TextView messageLabel = new TextView(context);
+        messageLabel.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+        messageLabel.setText(messageText);
+        vertLayout.addView(messageLabel,1);
+
+        TextView timeLabel = new TextView(context);
+        timeLabel.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+//        timeLabel.setGravity(side);
+        timeLabel.setText("");
+        vertLayout.addView(timeLabel, 2);
+        this.timeLabel = timeLabel;
+
 
         if (side == Gravity.END){
             addView(space);
@@ -59,26 +83,11 @@ public class MessageLayout extends LinearLayout {
             addView(space, 1);
         }
 
-//        Define timestamp textlabel
-        TextView timeLabel = new TextView(context);
-        timeLabel.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-        timeLabel.setGravity(side);
-        timeLabel.setText("");
-        vertLayout.addView(timeLabel);
-        this.timeLabel = timeLabel;
-
     }
 
     public void setTimeStamp(String timeStamp){
         timeLabel.setText(timeStamp);
     }
 
-    public void setMessageContent(String messageText){
-        TextView messageLabel = new TextView(context);
-        messageLabel.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-        messageLabel.setText(messageText);
-
-        vertLayout.addView(messageLabel,0);
-    }
 
 }

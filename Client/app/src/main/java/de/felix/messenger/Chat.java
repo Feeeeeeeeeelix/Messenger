@@ -79,8 +79,7 @@ public class Chat {
         String currentMessage = messageEntry.getText().toString();
         if (currentMessage.equals("")) return;
 
-        Message newMessage = new Message(1);
-        newMessage.setText(currentMessage);
+        Message newMessage = new Message(currentMessage, clientName, 1);
 
 //        Place the message on the screen
         placeNewMessage(newMessage);
@@ -169,8 +168,7 @@ public class Chat {
         byte[] encryptedBytes = Base64.getDecoder().decode(encodedText);
         String messageText = SymmetricEncryption.decryptBytesSymmetric(encryptedBytes, keyManager.symmetricKey, keyManager.iv);
 
-        Message receivedMessage = new Message(0, timeCreated);
-        receivedMessage.setText(messageText);
+        Message receivedMessage = new Message(messageText, senderName, 0, timeCreated);
 
         context.runOnUiThread(new Runnable() {
                                   @Override

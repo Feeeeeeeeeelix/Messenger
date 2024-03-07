@@ -13,19 +13,24 @@ import java.util.Locale;
 
 public class Message {
 
+    String senderName;
     String timeCreatedDisplay;
     Instant timeCreated;
 
     String textContent;
     int side;
 
-    public Message(int Side){
+    public Message(String textContent, String senderName, int Side){
         this.side = Side;
+        this.textContent = textContent;
+        this.senderName = senderName;
         saveTime();
     }
 
-    public Message(int Side, long givenCreationTime){
+    public Message(String textContent, String senderName, int Side, long givenCreationTime){
         this.side = Side;
+        this.textContent = textContent;
+        this.senderName = senderName;
 
         timeCreated = Instant.ofEpochMilli(givenCreationTime);
         timeCreatedDisplay = DateTimeFormatter.ofPattern("HH:mm").withLocale(Locale.getDefault()).withZone(ZoneId.systemDefault()).format(timeCreated);
@@ -37,16 +42,11 @@ public class Message {
     }
 
     public MessageLayout getLayout(Context context){
-        MessageLayout layout = new MessageLayout(context, side);
-        layout.setMessageContent(textContent);
+        MessageLayout layout = new MessageLayout(context,textContent, senderName, side);
         layout.setTimeStamp(timeCreatedDisplay);
         return layout;
     }
 
-    public void setText(String textMessage){
-        textContent = textMessage;
-
-    }
 
     public byte[] getEncrypted(PublicKey publicKey){
         return Encrypter.encryptString(textContent, publicKey);

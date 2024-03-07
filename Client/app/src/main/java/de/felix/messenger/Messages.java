@@ -69,8 +69,8 @@ public class Messages {
     private Message createMessageFromFileContent(byte[] encryptedMessageBytes, String fileName, int side){
         String messageContent = Encrypter.decryptBytes(encryptedMessageBytes, keyManager.getOwnPrivateKey());
         Long timeCreated = Long.valueOf(fileName);
-        Message newMessage = new Message(side, timeCreated);
-        newMessage.setText(messageContent);
+        Message newMessage = new Message(messageContent, "", side, timeCreated);
+//        TODO save sendername in file
         return  newMessage;
     }
 
