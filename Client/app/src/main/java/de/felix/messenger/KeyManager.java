@@ -26,8 +26,6 @@ public class KeyManager {
         this.chatIdentifier = chatIdentifier;
         this.client = client;
 
-//        test();
-
         loadSymKeysFromFile();
     }
 
@@ -90,41 +88,6 @@ public class KeyManager {
         SymmetricEncryption.saveSymKeyInFile(symmetricKey, iv, symKeyHash);
     }
 
-    public void test(){
-        createSymmetricKey();
-
-        String teststring = "oiuehglierg";
-
-        byte[] t =  SymmetricEncryption.encryptStringSymmetric(teststring, symmetricKey, iv);
-//        PublicKey receiverKey = Encrypter.createPublicKeyFromBytes(Base64.getDecoder().decode(receiverPubKeyString));
-
-//        SecretKey symKey = symmetricKey;
-        String symKeyString = Base64.getEncoder().encodeToString(symmetricKey.getEncoded());
-        String symKeyStringEncoded = Base64.getEncoder().encodeToString(Encrypter.encryptString(symKeyString, getOwnPublicKey()));
-
-//        IvParameterSpec iv = iv;
-        String ivString = Base64.getEncoder().encodeToString(iv.getIV());
-        String ivStringEncoded = Base64.getEncoder().encodeToString(Encrypter.encryptString(ivString, getOwnPublicKey()));
-
-        String symHash = symKeyHash;
-        String symHashStringEncoded = Base64.getEncoder().encodeToString(Encrypter.encryptString(symHash, getOwnPublicKey()));
-
-
-
-        byte[] symmetricKeyBytes = Base64.getDecoder().decode(symKeyStringEncoded);
-        String encodedSymKeyString = Encrypter.decryptBytes(symmetricKeyBytes, getOwnPrivateKey());
-        byte[] encordedSymKeyBytes = Base64.getDecoder().decode(encodedSymKeyString);
-        SecretKey syymKey = SymmetricEncryption.createSymKeyFromBytes(encordedSymKeyBytes);
-
-        byte[] symIVBytes = Base64.getDecoder().decode(ivStringEncoded);
-        String encodedSymIVString = Encrypter.decryptBytes(symIVBytes, getOwnPrivateKey());
-        byte[] encodedSymIVBytes = Base64.getDecoder().decode(encodedSymIVString);
-        IvParameterSpec ivv = new IvParameterSpec(encodedSymIVBytes);
-
-        String encodedb = SymmetricEncryption.decryptBytesSymmetric(t, syymKey, ivv);
-
-
-    }
 
     public void saveSymmetricKeyFromPartner(String symKeyString, String symIV, String symKeyHash) {
         Log.i("KeyManager", "Saving symkey on the device");

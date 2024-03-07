@@ -173,7 +173,7 @@ public class Communication {
                 });
     }
 
-    /*Sort
+    /*
          * message
          *   text (encrpyted with symkey)
          *   time
@@ -185,7 +185,7 @@ public class Communication {
          *   name of sender
          *
          * symkey
-         *   symkey (encrypted with giben pubkey)
+         *   symkey (encrypted with given pubkey)
          *   name of receiver
          *
          * */
