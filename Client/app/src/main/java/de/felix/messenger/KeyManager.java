@@ -131,8 +131,8 @@ public class KeyManager {
 
         byte[] symmetricKeyBytes = Base64.getDecoder().decode(symKeyString);
         String encodedSymKeyString = Encrypter.decryptBytes(symmetricKeyBytes, getOwnPrivateKey());
-        byte[] encordedSymKeyBytes = Base64.getDecoder().decode(encodedSymKeyString);
-        SecretKey symKey = SymmetricEncryption.createSymKeyFromBytes(encordedSymKeyBytes);
+        byte[] encodedSymKeyBytes = Base64.getDecoder().decode(encodedSymKeyString);
+        SecretKey symKey = SymmetricEncryption.createSymKeyFromBytes(encodedSymKeyBytes);
 
         byte[] symIVBytes = Base64.getDecoder().decode(symIV);
         String encodedSymIVString = Encrypter.decryptBytes(symIVBytes, getOwnPrivateKey());
@@ -159,18 +159,15 @@ public class KeyManager {
         String symKeyString = Base64.getEncoder().encodeToString(symKey.getEncoded());
         String symKeyStringEncoded = Base64.getEncoder().encodeToString(Encrypter.encryptString(symKeyString, receiverKey));
 
-//        IvParameterSpec iv = iv;
         String ivString = Base64.getEncoder().encodeToString(iv.getIV());
         String ivStringEncoded = Base64.getEncoder().encodeToString(Encrypter.encryptString(ivString, receiverKey));
 
-        String symHash = symKeyHash;
-        String symHashStringEncoded = Base64.getEncoder().encodeToString(Encrypter.encryptString(symHash, receiverKey));
-
-        client.sendSymmetricKey(symKeyStringEncoded, ivStringEncoded, symHashStringEncoded, receiverName);
+        client.sendSymmetricKey(symKeyStringEncoded, ivStringEncoded, symKeyHash, receiverName);
     }
 
     public void loadSymKeysFromFile(){
         Log.i("KeyManager", "Loading symkeys from the device");
+
         SecretKey symKey = SymmetricEncryption.loadSymKeyFromFile();
         IvParameterSpec iv = SymmetricEncryption.loadIVFromFile();
         String symHash = SymmetricEncryption.loadSymHashFromFile();
