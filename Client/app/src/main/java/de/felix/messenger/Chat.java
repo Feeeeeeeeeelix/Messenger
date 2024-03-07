@@ -10,16 +10,12 @@ import android.widget.ScrollView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 
-import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import javax.crypto.SecretKey;
-import javax.crypto.spec.IvParameterSpec;
 
 
 public class Chat {
@@ -39,6 +35,7 @@ public class Chat {
     KeyManager keyManager;
 
     List<Message> messagesToBeSend;
+    List<ReceivedMessage> messagesToBeRead;
 
     public Chat(MainActivity context,String clientName, ConstraintLayout mainLayout, Button deleteButton) {
 
@@ -71,6 +68,7 @@ public class Chat {
 
         loadMessages();
         messagesToBeSend = new ArrayList<>();
+        messagesToBeRead = new ArrayList<>();
 
     }
 
@@ -139,10 +137,30 @@ public class Chat {
 
     }
 
+    public static class ReceivedMessage{
+        String encodedText; Long timeCreated; String senderName; String symKeyHash;
+        public ReceivedMessage(String encodedText, Long timeCreated, String senderName, String symKeyHash) {
+            this.encodedText = encodedText; this.timeCreated =timeCreated;this.senderName = senderName; this.symKeyHash = symKeyHash;
+
+        }
+    }
+
     public void onReceiveMessage(String encodedText, Long timeCreated, String senderName, String symKeyHash){
         Log.i("Chat", "Received Message");
         if (!symKeyHash.equals(keyManager.symKeyHash)){
-            client.requestSymmetricKey(Base64.getEncoder().encodeToString(keyManager.getOwnPrivateKey().getEncoded()));
+            client.requestSymmetricKey(Base64.getEncoder().encodeToString(keyManager.getOwnPublicKey().getEncoded()));
+
+            messagesToBeRead.add(new ReceivedMessage( encodedText,  timeCreated,  senderName,  symKeyHash));
+
+            TimerTask task = new TimerTask() {
+                @Override
+                public void run() {
+                    checkSymKeyAndReadMessages();
+                }
+            };
+            Timer timer = new Timer();
+            int delay = 1000;
+            timer.schedule(task, delay);
             return;
         }
 
@@ -163,6 +181,28 @@ public class Chat {
         );
 
         messages.saveNewMessage(receivedMessage, keyManager.getOwnPublicKey());
+    }
+
+    private void checkSymKeyAndReadMessages() {
+        Log.i("Chat", "Check if i received a symkey");
+
+        if (keyManager.symmetricKey == null) {
+//            I am the first one to send: create a sym key and send my messages
+//            Log.i("Chat", "i didnt receive any symkey, i will create one");
+//            keyManager.createSymmetricKey();
+        }
+
+        if (messagesToBeRead.size() > 0) {
+            try {
+                for (ReceivedMessage cachedMessage : messagesToBeRead) {
+                    onReceiveMessage(cachedMessage.encodedText, cachedMessage.timeCreated, cachedMessage.senderName, cachedMessage.symKeyHash);
+                    messagesToBeRead.remove(cachedMessage);
+                }
+            } catch (ConcurrentModificationException e) {
+                Log.i("Chat", "some went wrong while deleting message to be read. messages: ");
+                Log.i("Chat", messagesToBeRead.toString());
+            }
+        }
     }
 
     private void loadMessages(){
