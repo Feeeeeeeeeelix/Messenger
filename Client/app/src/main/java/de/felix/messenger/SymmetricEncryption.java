@@ -11,8 +11,10 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Base64;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -59,8 +61,15 @@ public class SymmetricEncryption {
     }
 
     public static String generateKeyHash(SecretKey secretKey){
-//        TODO: generate key hash
-        return "";
+        MessageDigest md = null;
+        try {
+            md = MessageDigest.getInstance("MD5");
+            byte[] messageDigest = md.digest(secretKey.getEncoded());
+
+            return Base64.getEncoder().encodeToString(messageDigest);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 

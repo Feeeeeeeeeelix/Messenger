@@ -137,7 +137,7 @@ public class Communication {
                 String receiverPubKey = requestContent.getString(JsonKeyPubKey);
                 String receiverName = requestContent.getString(JsonKeyName);
 
-                chatReference.sendSymmetricKey(receiverPubKey, receiverName);
+                chatReference.keyManager.sendSymmetricKey(receiverPubKey, receiverName);
 
             }
             else if (obj.has(JsonKeyTypeSymKey)) {
@@ -235,7 +235,7 @@ public class Communication {
     }
 
 
-    public void sendSymmetricKey(String symKeyString,String symIVString,String symKeyHash, String receiverName){
+    public void sendSymmetricKey(String symKeyString, String symIVString, String symKeyHash, String receiverName){
         Log.d("Communication", "Sending SymKey");
         JSONObject obj = new JSONObject();
         try {

@@ -93,10 +93,10 @@ public class Chat {
 
     private void sendMessage(Message messageToSend){
         if (keyManager.symmetricKey == null){
+            Log.i("Chat", "Didnt habe a symkey, requesting one");
             client.requestSymmetricKey(Base64.getEncoder().encodeToString(keyManager.getOwnPublicKey().getEncoded()));
 
             messagesToBeSend.add(messageToSend);
-//            TODO:wait 2 sec for answer and cache the message
 
             TimerTask task = new TimerTask() {
                 @Override
@@ -162,30 +162,6 @@ public class Chat {
         );
 
         messages.saveNewMessage(receivedMessage, keyManager.getOwnPublicKey());
-    }
-
-
-    public void sendSymmetricKey(String receiverPubKeyString, String receiverName) {
-        Log.i("Chat", "Sending symKey..");
-        if (keyManager.symmetricKey == null){
-//            no sym key
-            Log.i("Chat", "No SymKey to Send");
-            return;
-        }
-        PublicKey receiverKey = Encrypter.createPublicKeyFromBytes(Base64.getDecoder().decode(receiverPubKeyString));
-
-        SecretKey symKey = keyManager.symmetricKey;
-        String symKeyString = Base64.getEncoder().encodeToString(symKey.getEncoded());
-        String symKeyStringEncoded = Base64.getEncoder().encodeToString(Encrypter.encryptString(symKeyString, receiverKey));
-
-        IvParameterSpec iv = keyManager.iv;
-        String ivString = Base64.getEncoder().encodeToString(iv.getIV());
-        String ivStringEncoded = Base64.getEncoder().encodeToString(Encrypter.encryptString(ivString, receiverKey));
-
-        String symHash = keyManager.symKeyHash;
-        String symHashStringEncoded = Base64.getEncoder().encodeToString(Encrypter.encryptString(symHash, receiverKey));
-
-        client.sendSymmetricKey(symKeyStringEncoded, ivStringEncoded, symHashStringEncoded, receiverName);
     }
 
     private void loadMessages(){
