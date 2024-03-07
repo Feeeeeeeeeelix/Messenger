@@ -41,6 +41,9 @@ public class MessageLayout extends LinearLayout {
         vertLayout.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 0));
         vertLayout.setOrientation(VERTICAL);
         vertLayout.setBackgroundColor(0xFF7689F3);
+//        vertLayout.setBackground(R.drawable.message_background_right);
+//        TODO: set 9patch image as message background
+
         vertLayout.setGravity(side);
         vertLayout.setPadding(20, 20,20,20);
         this.vertLayout = vertLayout;
