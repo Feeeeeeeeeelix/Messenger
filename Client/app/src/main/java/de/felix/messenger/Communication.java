@@ -110,12 +110,8 @@ public class Communication {
                 });
     }
 
-    public void disconnect(){
-        client.disconnect();
-    }
-
     public void onReceiveMessage(byte[] byteContent) {
-        Log.i("Communication", String.format("Received Message : %s", byteContent));
+        Log.i("Communication", "Received Message");
 
         try {
             JSONObject obj = new JSONObject(new String(byteContent));
@@ -137,7 +133,9 @@ public class Communication {
                 String receiverPubKey = requestContent.getString(JsonKeyPubKey);
                 String receiverName = requestContent.getString(JsonKeyName);
 
-                chatReference.keyManager.sendSymmetricKey(receiverPubKey, receiverName);
+                if (!receiverName.equals(clientName)){
+                    chatReference.keyManager.sendSymmetricKey(receiverPubKey, receiverName);
+                }
 
             }
             else if (obj.has(JsonKeyTypeSymKey)) {
@@ -156,7 +154,26 @@ public class Communication {
             throw new RuntimeException(e);
         }
     }
-        /*Sort
+
+    public void publishMessage(byte[] byteContent){
+        Log.d("Communication", String.format("Publishing bytes: %s", new String(byteContent)));
+        client.publishWith()
+                .topic(TOPIC)
+                .qos(MqttQos.EXACTLY_ONCE)
+                //.retain(false)
+                .payload(byteContent)
+                .messageExpiryInterval(2628000)
+                .send()
+                .whenComplete((publish, throwable) -> {
+                    if (throwable != null) {
+                        Log.e("Communication", "Publication failed: "+throwable);
+                    } else {
+                        Log.d("Communication", "Publication successful");
+                    }
+                });
+    }
+
+    /*Sort
          * message
          *   text (encrpyted with symkey)
          *   time
@@ -174,7 +191,8 @@ public class Communication {
          * */
 
     public void SendMessage(Message messageToSend, SecretKey symmetricKey, IvParameterSpec iv, String SymKeyHash){
-        Log.i("Communication", "Sending Message...");
+        Log.i("Communication", "Sending Message with key:");
+        Log.i("Communication", symmetricKey.toString()+" iv: "+iv.toString()+" hash; "+SymKeyHash);
 
         byte[] encryptedBytes = SymmetricEncryption.encryptStringSymmetric(messageToSend.textContent, symmetricKey, iv);
         String base64EncodedMessageContent = Base64.getEncoder().encodeToString(encryptedBytes);
@@ -198,22 +216,25 @@ public class Communication {
         publishMessage(sendData);
     }
 
-    public void publishMessage(byte[] byteContent){
-        Log.d("Communication", String.format("Publishing bytes: %s", new String(byteContent)));
-        client.publishWith()
-                .topic(TOPIC)
-                .qos(MqttQos.EXACTLY_ONCE)
-                //.retain(false)
-                .payload(byteContent)
-                .messageExpiryInterval(2628000)
-                .send()
-                .whenComplete((publish, throwable) -> {
-                    if (throwable != null) {
-                        Log.e("Communication", "Publication failed: "+throwable);
-                    } else {
-                        Log.d("Communication", "Publication successful");
-                    }
-                });
+    public void sendSymmetricKey(String symKeyString, String symIVString, String symKeyHash, String receiverName){
+        Log.d("Communication", "Sending SymKey");
+        JSONObject obj = new JSONObject();
+        try {
+            JSONObject symKeyContent = new JSONObject();
+            symKeyContent.put(JsonKeyName, receiverName);
+
+            symKeyContent.put(JsonKeySymKey, symKeyString);
+            symKeyContent.put(JsonKeySymIV, symIVString);
+            symKeyContent.put(JsonKeySymKeyHash, symKeyHash);
+
+            obj.put(JsonKeyTypeSymKey, symKeyContent);
+
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
+        byte[] sendData = obj.toString().getBytes(StandardCharsets.UTF_8);
+        publishMessage(sendData);
     }
 
     public void requestSymmetricKey(String publicKeyString){
@@ -235,24 +256,7 @@ public class Communication {
     }
 
 
-    public void sendSymmetricKey(String symKeyString, String symIVString, String symKeyHash, String receiverName){
-        Log.d("Communication", "Sending SymKey");
-        JSONObject obj = new JSONObject();
-        try {
-            JSONObject symKeyContent = new JSONObject();
-            symKeyContent.put(JsonKeyName, receiverName);
-
-            symKeyContent.put(JsonKeySymKey, symKeyString);
-            symKeyContent.put(JsonKeySymIV, symIVString);
-            symKeyContent.put(JsonKeySymKeyHash, symKeyHash);
-
-            obj.put(JsonKeyTypeSymKey, symKeyContent);
-
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-
-        byte[] sendData = obj.toString().getBytes(StandardCharsets.UTF_8);
-        publishMessage(sendData);
+    public void disconnect(){
+        client.disconnect();
     }
 }
