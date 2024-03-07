@@ -15,7 +15,6 @@ import android.widget.TextView;
 public class MessageLayout extends LinearLayout {
 
     TextView timeLabel;
-    LinearLayout vertLayout;
     Context context;
 
     public MessageLayout(Context context, String messageText, String senderName, Integer Side) {
@@ -36,9 +35,11 @@ public class MessageLayout extends LinearLayout {
         space.setLayoutParams(new LayoutParams(150, ViewGroup.LayoutParams.MATCH_PARENT, 0));
 //        space.setBackgroundColor(0xFFFFE0E0);
         space.setMinimumWidth(50);
-//        TODO: space when side=0
 
 
+        LinearLayout outerVertLayout = new LinearLayout(context);
+        outerVertLayout.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 1));
+        outerVertLayout.setGravity(side);
 
 //        Define Vertical Layout for message and timestamp
         LinearLayout vertLayout = new LinearLayout(context);
@@ -47,7 +48,7 @@ public class MessageLayout extends LinearLayout {
         vertLayout.setBackgroundColor(0xFF7689F3);
         vertLayout.setGravity(side);
         vertLayout.setPadding(20, 20,20,20);
-        this.vertLayout = vertLayout;
+        outerVertLayout.addView(vertLayout);
 
 //        vertLayout.setBackground(R.drawable.message_background_right);
 //        TODO: set 9patch image as message background
@@ -76,11 +77,11 @@ public class MessageLayout extends LinearLayout {
 
         if (side == Gravity.END){
             addView(space);
-            addView(vertLayout);
+            addView(outerVertLayout);
         }
         else{
-            addView(vertLayout, 0);
-            addView(space, 1);
+            addView(outerVertLayout);
+            addView(space);
         }
 
     }

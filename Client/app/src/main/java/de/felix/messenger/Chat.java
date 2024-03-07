@@ -163,7 +163,7 @@ public class Chat {
             return;
         }
 
-//        if (senderName.equals(clientName)) return;TODO dont show own messages
+//        if (senderName.equals(clientName)) return; //TODO dont show own messages
 
         byte[] encryptedBytes = Base64.getDecoder().decode(encodedText);
         String messageText = SymmetricEncryption.decryptBytesSymmetric(encryptedBytes, keyManager.symmetricKey, keyManager.iv);
