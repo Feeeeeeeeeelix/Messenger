@@ -11,7 +11,7 @@
         android:id="@+id/linearLayout"
         android:layout_width="0dp"
         android:layout_height="50dp"
-        android:layout_margin="5dp"
+        android:layout_margin="10dp"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -35,11 +35,14 @@
 
         <Button
             android:id="@+id/DeleteChatButton"
-            android:layout_width="50dp"
+            android:layout_width="180px"
             android:layout_height="wrap_content"
             android:layout_margin="0dp"
             android:clickable="true"
-            android:padding="30dp"
+            android:insetLeft="0dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:padding="16dp"
             app:icon="@android:drawable/ic_menu_delete" />
 
     </LinearLayout>
@@ -80,7 +83,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:background="#7689F3"
                     android:gravity="end"
                     android:orientation="horizontal">
 
@@ -88,16 +90,17 @@
                         android:id="@+id/linearLayout3"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:background="@drawable/message_background"
                         android:gravity="end"
                         android:orientation="vertical"
-                        android:padding="10dp">
+                        android:padding="40px">
 
                         <TextView
                             android:id="@+id/textView4sdf6"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:gravity="start"
-                            android:text="(oiehrg(oiheruhglkearhklgerksugheajkrhgkjaerhkjaerkgjkaejrhgaerg+" />
+                            android:text="Das ist ein sehr lange beispietext der hoffentlich länger als eine Zeile ist." />
 
                         <TextView
                             android:id="@+id/textView7sdf"
@@ -110,51 +113,6 @@
 
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="409dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:orientation="horizontal">
-
-                    <LinearLayout
-                        android:id="@+id/linearLayout323"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="#7689F3"
-                        android:gravity="start"
-                        android:orientation="vertical"
-                        android:padding="8dp">
-
-                        <TextView
-                            android:id="@+id/textView4sd3f6"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:gravity="start"
-                            android:text="rtsjrstzj" />
-
-                        <TextView
-                            android:id="@+id/textView7sd23f"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:gravity="right"
-                            android:text="20:17" />
-                    </LinearLayout>
-                </LinearLayout>
-
-                <Space
-                    android:layout_width="150px"
-                    android:layout_height="match_parent"
-                    android:layout_weight="0"
-                    android:minWidth="50px" />
-
-            </LinearLayout>
-
         </LinearLayout>
 
     </ScrollView>
@@ -162,7 +120,7 @@
     <LinearLayout
         android:id="@+id/linearLayout2"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -170,22 +128,23 @@
 
         <EditText
             android:id="@+id/editTextText"
-            android:layout_width="wrap_content"
-            android:layout_height="48dp"
-            android:layout_marginStart="24dp"
-            android:layout_marginBottom="16dp"
-            android:backgroundTint="#ED1818"
-            android:ems="10"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:layout_margin="10dp"
+            android:layout_weight="1"
+            android:background="@drawable/message_entry_background"
+            android:hint="Neue Nachricht..."
             android:inputType="text"
-            android:text="Message" />
+            android:padding="10dp" />
 
         <Button
             android:id="@+id/button"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
-            android:text="Send" />
+            android:layout_height="match_parent"
+            android:layout_margin="10dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:text="Sende" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
