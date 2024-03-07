@@ -117,9 +117,7 @@ public class Encrypter {
             encryptCipher.init(Cipher.ENCRYPT_MODE, givenPublicKey);
 
             byte[] bytesToEncrypt = stringToEncrypt.getBytes(StandardCharsets.UTF_8);
-            byte[] encryptedBytes = encryptCipher.doFinal(bytesToEncrypt);
-
-            return encryptedBytes;
+            return  encryptCipher.doFinal(bytesToEncrypt);
 
         } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException |
                  IllegalBlockSizeException | BadPaddingException e) {
@@ -127,7 +125,7 @@ public class Encrypter {
         }
     }
 
-    public static String decryptString(byte[] encryptedBytes, PrivateKey privateKey) {
+    public static String decryptBytes(byte[] encryptedBytes, PrivateKey privateKey) {
         try {
             Log.i("Enrcrypter", "Decrypting Bytes...");
             Cipher decryptCypher = Cipher.getInstance("RSA");

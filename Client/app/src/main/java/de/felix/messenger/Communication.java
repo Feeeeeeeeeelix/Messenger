@@ -14,7 +14,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.nio.charset.StandardCharsets;
-import java.security.PublicKey;
 import java.util.Base64;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -150,7 +149,7 @@ public class Communication {
                 String symKeyHash = symKeyContent.getString(JsonKeySymKeyHash);
 
                 if (receiverName.equals(clientName)){
-                    chatReference.keyManager.saveSymmetricKey(symKey, symIVString, symKeyHash);
+                    chatReference.keyManager.saveSymmetricKeyFromPartner(symKey, symIVString, symKeyHash);
                 }
             }
         } catch (JSONException e) {
