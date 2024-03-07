@@ -1,5 +1,7 @@
 package de.felix.messenger;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -57,7 +59,17 @@ public class Chat {
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                deleteChatContent();
+                new AlertDialog.Builder(context)
+                        .setTitle("Chat Löschen")
+                        .setMessage("Möchten Sie den ganzen Chat Inhalt löschen?")
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                deleteChatContent();
+                            }
+                        })
+                        .setNegativeButton(android.R.string.no, null)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
             }
         });
 
