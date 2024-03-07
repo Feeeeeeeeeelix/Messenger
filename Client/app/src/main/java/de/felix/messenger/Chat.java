@@ -71,6 +71,7 @@ public class Chat {
 
         loadMessages();
         messagesToBeSend = new ArrayList<>();
+
     }
 
     private void createOwnMessage(){
