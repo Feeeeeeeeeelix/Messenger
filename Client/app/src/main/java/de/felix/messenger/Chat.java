@@ -89,6 +89,7 @@ public class Chat {
 
 //        Get Message Text and create Message Object
         String currentMessage = messageEntry.getText().toString();
+        messageEntry.setText("");
         if (currentMessage.equals("")) return;
 
         Message newMessage = new Message(currentMessage, clientName, 1);
