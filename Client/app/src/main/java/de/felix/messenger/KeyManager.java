@@ -2,10 +2,6 @@ package de.felix.messenger;
 
 import android.util.Log;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -94,13 +90,18 @@ public class KeyManager {
         SymmetricEncryption.saveSymKeyInFile(symmetricKey, iv, symKeyHash);
     }
 
-    public void saveSymmetricKey(String symKeyString, String symIV, String symKeyHash) {
+    public void saveSymmetricKeyFromPartner(String symKeyString, String symIV, String symKeyHash) {
         Log.i("KeyManager", "Saving symkey on the device");
+
         byte[] symmetricKeyBytes = Base64.getDecoder().decode(symKeyString);
-        SecretKey symKey = SymmetricEncryption.createSymKeyFromBytes(symmetricKeyBytes);
+        String encodedSymKeyString = Encrypter.decryptBytes(symmetricKeyBytes, getOwnPrivateKey());
+        byte[] encordedSymKeyBytes = Base64.getDecoder().decode(encodedSymKeyString);
+        SecretKey symKey = SymmetricEncryption.createSymKeyFromBytes(encordedSymKeyBytes);
 
         byte[] symIVBytes = Base64.getDecoder().decode(symIV);
-        IvParameterSpec iv = new IvParameterSpec(symIVBytes);
+        String encodedSymIVString = Encrypter.decryptBytes(symIVBytes, getOwnPrivateKey());
+        byte[] encodedSymIVBytes = Base64.getDecoder().decode(encodedSymIVString);
+        IvParameterSpec iv = new IvParameterSpec(encodedSymIVBytes);
 
         SymmetricEncryption.saveSymKeyInFile(symKey, iv, symKeyHash);
 
