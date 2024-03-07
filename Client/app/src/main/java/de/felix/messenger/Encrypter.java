@@ -87,7 +87,7 @@ public class Encrypter {
 
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
 
-            Log.i("Encrypter", "Failed to creating pubkey from bytes");
+            Log.i("Encrypter", "Failed to creating pubkey from bytes"+e.toString());
             return null;
         }
     }
@@ -112,7 +112,7 @@ public class Encrypter {
 
     public static byte[] encryptString(String stringToEncrypt, PublicKey givenPublicKey) {
         try {
-            Log.i("Enrcrypter", "Encrpyting String...");
+            Log.i("Enrcrypter", "Encrypting String...");
             Cipher encryptCipher = Cipher.getInstance("RSA");
             encryptCipher.init(Cipher.ENCRYPT_MODE, givenPublicKey);
 
