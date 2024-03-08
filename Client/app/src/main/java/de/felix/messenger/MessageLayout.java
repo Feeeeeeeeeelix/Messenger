@@ -45,7 +45,7 @@ public class MessageLayout extends LinearLayout {
         LinearLayout vertLayout = new LinearLayout(context);
         vertLayout.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 0));
         vertLayout.setOrientation(VERTICAL);
-        vertLayout.setBackground(getResources().getDrawable(R.drawable.message_background_right));
+        vertLayout.setBackground(getResources().getDrawable(R.drawable.message_background));
         vertLayout.setGravity(side);
         vertLayout.setPadding(25, 25,25,25);
         outerVertLayout.addView(vertLayout);
