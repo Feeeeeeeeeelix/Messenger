@@ -7,7 +7,6 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.text.InputType;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -50,24 +49,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void promptUserForName(){
-//        https://stackoverflow.com/questions/10903754/input-text-dialog-android
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Enter your Name");
-/*// I'm using fragment here so I'm using getView() to provide ViewGroup
-// but you can provide here any other instance of ViewGroup from your Fragment / Activity
-        View viewInflated = LayoutInflater.from(context).inflate(R.layout.name_entry_dialog, (ViewGroup) context.getView(), false);
-// Set up the input
-        final EditText input = (EditText) viewInflated.findViewById(R.id.userNameInput);
-// Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-        builder.setView(viewInflated);*/
+//       Quelle:  https://stackoverflow.com/questions/10903754/input-text-dialog-android
 
-        // Set up the input
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Geben Sie Ihren Namen ein:");
+
         final EditText input = new EditText(this);
-// Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-//        input.setInputType(InputType.TYPE_CLASS_TEXT);
         builder.setView(input);
 
-// Set up the buttons
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {

@@ -27,13 +27,11 @@ public class MessageLayout extends LinearLayout {
         layoutParams.setMargins(0 ,10,0,10);
         this.setLayoutParams(layoutParams);
         setOrientation(HORIZONTAL);
-//        setBackgroundColor(0xFFB6B9F3);
         setGravity(side);
 
 
         Space space = new Space(context);
         space.setLayoutParams(new LayoutParams(150, ViewGroup.LayoutParams.MATCH_PARENT, 0));
-//        space.setBackgroundColor(0xFFFFE0E0);
         space.setMinimumWidth(50);
 
 
@@ -50,8 +48,6 @@ public class MessageLayout extends LinearLayout {
         vertLayout.setPadding(25, 25,25,25);
         outerVertLayout.addView(vertLayout);
 
-//        vertLayout.setBackground(R.drawable.message_background_right);
-//        TODO: set 9patch image as message background
 
 
         TextView senderLabel = new TextView(context);
@@ -69,7 +65,6 @@ public class MessageLayout extends LinearLayout {
 
         TextView timeLabel = new TextView(context);
         timeLabel.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-//        timeLabel.setGravity(side);
         timeLabel.setText("");
         vertLayout.addView(timeLabel, 2);
         this.timeLabel = timeLabel;
@@ -83,12 +78,9 @@ public class MessageLayout extends LinearLayout {
             addView(outerVertLayout);
             addView(space);
         }
-
     }
 
     public void setTimeStamp(String timeStamp){
         timeLabel.setText(timeStamp);
     }
-
-
 }

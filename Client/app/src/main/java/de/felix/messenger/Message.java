@@ -3,7 +3,6 @@ package de.felix.messenger;
 import android.content.Context;
 import android.os.Build;
 
-import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.time.Instant;
 import java.time.ZoneId;

@@ -174,24 +174,4 @@ public class SymmetricEncryption {
         }
     }
 
-
-
-    /*public static void saveKey(SecretKey key, File file) throws IOException
-    {
-        char[] hex = encodeHex(key.getEncoded());
-        writeStringToFile(file, String.valueOf(hex));
-    }
-
-    public static SecretKey loadKey(File file) throws IOException
-    {
-        String data = new String(readFileToByteArray(file));
-        byte[] encoded;
-        try {
-            encoded = decodeHex(data.toCharArray());
-        } catch (DecoderException e) {
-            e.printStackTrace();
-            return null;
-        }
-        return new SecretKeySpec(encoded, "AES");
-    }*/
 }
