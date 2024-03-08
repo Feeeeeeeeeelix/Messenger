@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -93,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
         Encrypter encrypter = new Encrypter(getFilesDir());
         SymmetricEncryption symencrypter = new SymmetricEncryption(getFilesDir());
         ConstraintLayout mainChatLayout = findViewById(R.id.mainChatFrame);
-        Button deleteChatButton = findViewById(R.id.DeleteChatButton);
+        ImageButton deleteChatButton = findViewById(R.id.DeleteChatButton);
 
         Chat chat = new Chat(this,clientName, mainChatLayout, deleteChatButton);
 

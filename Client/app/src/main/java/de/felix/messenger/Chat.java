@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 
@@ -39,7 +40,7 @@ public class Chat {
     List<Message> messagesToBeSend;
     List<ReceivedMessage> messagesToBeRead;
 
-    public Chat(MainActivity context,String clientName, ConstraintLayout mainLayout, Button deleteButton) {
+    public Chat(MainActivity context,String clientName, ConstraintLayout mainLayout, ImageButton deleteButton) {
 
         this.context = context;
         this.clientName = clientName;
@@ -176,7 +177,7 @@ public class Chat {
             return;
         }
 
-//        if (senderName.equals(clientName)) return; //TODO dont show own messages
+        if (senderName.equals(clientName)) return;
 
         byte[] encryptedBytes = Base64.getDecoder().decode(encodedText);
         String messageText = SymmetricEncryption.decryptBytesSymmetric(encryptedBytes, keyManager.symmetricKey, keyManager.iv);
