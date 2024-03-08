@@ -68,9 +68,14 @@ public class Messages {
 
     private Message createMessageFromFileContent(byte[] encryptedMessageBytes, String fileName, int side){
         String messageContent = Encrypter.decryptBytes(encryptedMessageBytes, keyManager.getOwnPrivateKey());
+        String senderName = "";
+        if (fileName.contains(";")){
+            String[] data = fileName.split(";");
+            fileName = data[0];
+            senderName = data[1];
+        }
         Long timeCreated = Long.valueOf(fileName);
-        Message newMessage = new Message(messageContent, "", side, timeCreated);
-//        TODO save sendername in file
+        Message newMessage = new Message(messageContent, senderName, side, timeCreated);
         return  newMessage;
     }
 
@@ -78,7 +83,7 @@ public class Messages {
         Log.i("Messages", "Saving Message on the device...");
         try {
             int side = newMessage.side;
-            String fileName = String.valueOf(newMessage.getCreationTime());
+            String fileName = String.valueOf(newMessage.getCreationTime())+";"+newMessage.senderName;
             byte[] encryptedBytes = newMessage.getEncrypted(pubKey);
 
             File messageFile = new File(side == 1 ? filesFolderSend: filesFolderReceived , fileName);
