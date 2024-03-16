@@ -85,6 +85,10 @@ public class Chat {
 
     }
 
+    /**
+     * Bei Druck auf die "senden" taste im chat wird der aktuelle Text gespeichert, das
+     * Textfeld gelöscht, die nachricht angezeigt, verschlüsselt, gespeichert, verschickt
+     */
     private void createOwnMessage(){
         Log.i("Chat", "Creating own Message");
 
@@ -103,6 +107,12 @@ public class Chat {
         sendMessage(newMessage);
     }
 
+    /**
+     * Versucht, die gerade erstellte Nachricht zu versenden. Wenn kein symmetrischer Schlüssel
+     * vorhanden ist, wird eine Anfrage versendet und die aktuelle nachricht in einer cache
+     * gespeichert. Nach 1 sek wird überprüft, ob in der zwischenzeit
+     * ein Symmetrischen Schlüssel angekommen ist.
+     */
     private void sendMessage(Message messageToSend){
         if (keyManager.symmetricKey == null){
             Log.i("Chat", "Didnt habe a symkey, requesting one");
@@ -126,6 +136,11 @@ public class Chat {
         }
     }
 
+    /**
+     * Nach 1 sek nach dem sender Der anfrage wird hier überprüft, ob ein symmetrischer schlüssel
+     * vorhanden ist. Wenn ja, versuche erneut die gecachten Nachrichten zu versenden und lösche sie
+     * aus dem Cache
+     */
     private void checkSymKeyAndSendMessages(){
         Log.i("Chat", "Check if i have a symkey");
 
@@ -150,6 +165,9 @@ public class Chat {
 
     }
 
+    /**
+     * Ein Objekt, was die Inhalte einer empfangenen Nachricht enthält
+     */
     public static class ReceivedMessage{
         String encodedText; Long timeCreated; String senderName; String symKeyHash;
         public ReceivedMessage(String encodedText, Long timeCreated, String senderName, String symKeyHash) {
@@ -158,6 +176,14 @@ public class Chat {
         }
     }
 
+    /**
+     * Beim empfang einer Nachricht wird überprüft, ob der gleiche symmetrische schlüssel vorhanden ist
+     * Wenn nicht, wird die empfangene nachricht als ReceivedMessage Objekt gecachet,
+     * und einer Anfrage versendet .
+     * nach 1 sek wird überprüft, ob ein symmetrischer schlüssel angekommen ist.
+     *
+     * Wenn ein symmetrischer Schlüssel vorhanden ist, wird die empfangen nachricht entschlüsselt, angezeigt und gespeichert.
+     */
     public void onReceiveMessage(String encodedText, Long timeCreated, String senderName, String symKeyHash){
         Log.i("Chat", "Received Message");
         if (!symKeyHash.equals(keyManager.symKeyHash)){
@@ -195,6 +221,10 @@ public class Chat {
         messages.saveNewMessage(receivedMessage, keyManager.getOwnPublicKey());
     }
 
+    /**
+     *      Nach 1 sek nach dem senden der anfrage wird hier überprüft, ob ein symmetrischer schlüssel
+     *      * vorhanden ist. Wenn ja, werden die gecachten Nachrichten entschlüsselt
+     */
     private void checkSymKeyAndReadMessages() {
         Log.i("Chat", "Check if i received a symkey");
 
@@ -217,6 +247,9 @@ public class Chat {
         }
     }
 
+    /**
+     * Lade und zeige die gespeicherten Nachrichten aus dem Geräte-Speicher an.
+     */
     private void loadMessages(){
         Log.i("Chat", "loading Messages...");
 
@@ -231,6 +264,9 @@ public class Chat {
 
     }
 
+    /**
+     * Platziere das Layout der Nachricht in den Chat
+     */
     private void placeNewMessage(Message message){
         Log.i("Chat", "Placing new Message");
 //        Create a Layout for the message and place it in the main layout
@@ -240,6 +276,9 @@ public class Chat {
         scrollToBottom();
     }
 
+    /**
+     * Beim Platzieren einer neuen Nachricht wird zum Ende vom Chat gescrollt.
+     */
     private void scrollToBottom() {
         mainScrollView.post(new Runnable() {
             @Override
@@ -249,6 +288,9 @@ public class Chat {
         });
     }
 
+    /**
+     * Löscht den Inhalt des Chats
+     */
     private void deleteChatContent(){
         Log.i("Chat", "Deleting Chat Content");
 

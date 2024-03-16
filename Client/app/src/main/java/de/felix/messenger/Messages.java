@@ -26,6 +26,12 @@ public class Messages {
         this.keyManager = keyManager;
     }
 
+    /**
+     * Lade die Nachrichten aus den Dateien. Die gesendeten und empfangenen Nachrichten werden in zwei
+     * getrennten Ordnern gespeichert, um sie zuordnen zu können. Der Name der Datei ist die
+     * Erstellzeit der Nachricht, in ms seit Epoch, und der inhalt ist der Text-Inhalt, verschlüsselt
+     * mit dem eigenen öffentlichen Schlüssel
+     */
     public ArrayList<Message> loadMessages(){
         ArrayList<Message> loadedMessages = new ArrayList<Message>();
 
@@ -66,6 +72,9 @@ public class Messages {
         }
     }
 
+    /**
+     * Erstellt von der rohen Bytes einer Datei ein Nachricht-Objekt
+     */
     private Message createMessageFromFileContent(byte[] encryptedMessageBytes, String fileName, int side){
         String messageContent = Encrypter.decryptBytes(encryptedMessageBytes, keyManager.getOwnPrivateKey());
         String senderName = "";
@@ -79,6 +88,9 @@ public class Messages {
         return  newMessage;
     }
 
+    /**
+     * Sichert eine neue Nachricht in dem zugehörigen Ordner
+     */
     public void saveNewMessage(Message newMessage, PublicKey pubKey){
         Log.i("Messages", "Saving Message on the device...");
         try {
@@ -99,6 +111,9 @@ public class Messages {
         }
     }
 
+    /**
+     * Löscht alle Nachrichten aus den Ordnern
+     */
     public void deleteAllMessages(){
         deleteDirectory(baseDir);
     }

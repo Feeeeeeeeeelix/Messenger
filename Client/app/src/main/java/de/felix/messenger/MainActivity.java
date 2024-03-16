@@ -1,13 +1,11 @@
 package de.felix.messenger;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
@@ -24,7 +22,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-//        EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -33,12 +30,17 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Wenn die App zum ersten mal gestartet wird, frage den Benutzer nach seinem Namen.
+     * Andernfalls ist der Name in einer Datei schon gespeichert.
+     */
     private void getUserName(){
         if (nameFile.exists()){
             try {
                 FileInputStream fis = new FileInputStream(nameFile);
                 this.clientName = new String(fis.readAllBytes());
                 fis.close();
+
                 initChat();
 
             } catch (IOException e) {
@@ -49,6 +51,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Fragt den Benutzer beim ersten Start der App nach seinem Namen
+
+     */
     private void promptUserForName(){
 //       Quelle:  https://stackoverflow.com/questions/10903754/input-text-dialog-android
 
@@ -63,7 +69,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
                 clientName =  input.getText().toString();
+
                 saveClientName();
+
                 initChat();
 
             }
@@ -78,6 +86,10 @@ public class MainActivity extends AppCompatActivity {
         builder.show();
     }
 
+    /**
+     * Beim Druck auf "Ok" wird der eingegebene Name gespeichert
+     *
+     */
     private void saveClientName(){
         try {
             FileOutputStream fos = new FileOutputStream(nameFile);
@@ -89,6 +101,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * initialisiert den Chat, und zwei Encrypter Klassen
+     */
     private void initChat(){
 
         Encrypter encrypter = new Encrypter(getFilesDir());

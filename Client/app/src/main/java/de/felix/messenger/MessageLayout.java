@@ -17,6 +17,12 @@ public class MessageLayout extends LinearLayout {
     TextView timeLabel;
     Context context;
 
+
+    /**
+     * Erstellt ein Layout einer Nachricht. Der Name des Senders in Fett, der Inhalt der Nachricht
+     * und die formattierte Erstellzeit wird untereinander einem blauen Block platziert, was eine
+     * automatische Breite und höhe einnimmt.
+     */
     public MessageLayout(Context context, String messageText, String senderName, Integer Side) {
         super(context);
         this.context = context;

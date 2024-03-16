@@ -34,6 +34,9 @@ public class Encrypter {
         Encrypter.filesDir = new File(filesDir, "Keys");
     }
 
+    /**
+     * erstelle einen öffentlichen und privaten asymmetrischen RSA Schlüssel
+     */
     public static KeyPair generateKeyPair() {
 
         KeyPairGenerator generator = null;
@@ -48,6 +51,9 @@ public class Encrypter {
         return keyPair;
     }
 
+    /**
+     * Speichere den gegebenen Schlüssel in einer Datei mit gegebenen Namen
+     */
     public static void storeKey(Key key, String fileName){
         try {
             File keyFile = new File(filesDir, fileName);
@@ -62,6 +68,9 @@ public class Encrypter {
         }
     }
 
+    /**
+     * Liest einen öffentlichen Schlüssel aus einer Datei aus.
+     */
     public static PublicKey readPublicKeyFromFile(String fileName) {
         try {
             FileInputStream publicKeyFile = new FileInputStream(new File(filesDir, fileName));
@@ -77,6 +86,9 @@ public class Encrypter {
         }
     }
 
+    /**
+     * Erstellt einen öffentlichen Schlüssel von rohen Bytes (zb aus einer Datei, oder von einer gesendeten Nachricht)
+     */
     public static PublicKey createPublicKeyFromBytes(byte[] pubKeyBytes){
         KeyFactory pubKeyFactory = null;
         try {
@@ -92,6 +104,9 @@ public class Encrypter {
         }
     }
 
+    /**
+     * Erstelle einen privaten Schlüssel von einer Datei
+     */
     public static PrivateKey readPrivateKeyFromFile(String fileName){
         try {
             File publicKeyFile = new File(filesDir, fileName);
@@ -110,6 +125,9 @@ public class Encrypter {
     }
 
 
+    /**
+     *  Verschlüsse einen String mit dem gegebenen öffentlichen Schlüssel
+     */
     public static byte[] encryptString(String stringToEncrypt, PublicKey givenPublicKey) {
         try {
             Log.i("Enrcrypter", "Encrypting String...");
@@ -125,6 +143,9 @@ public class Encrypter {
         }
     }
 
+    /**
+     * Entschlüssle gegebene Bytes zu einem String mit den privaten Schlüssel
+     */
     public static String decryptBytes(byte[] encryptedBytes, PrivateKey privateKey) {
         try {
             Log.i("Enrcrypter", "Decrypting Bytes...");

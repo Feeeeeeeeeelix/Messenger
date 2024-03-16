@@ -110,6 +110,25 @@ public class Communication {
                 });
     }
 
+    /**
+     * Bei dem Empfang einer Nachricht mit MQTT werden die bytes zurück in ein JSON objekt konvertiert und
+     * entschieden, um welchen Nachrichten-Typ es sich handelt.
+     *
+     * Es gibt
+     *  - Normale Text-Nachricht
+     *      verschlüsselter Text
+     *      erstellzeit in ms
+     *      Name des Senders
+     *      Name des symmetrischen Schlüssels
+     *
+     *  - Anfrage eines symmetrischen Schlüssels
+     *      öffentlicher Schlüssel des senders
+     *      Name des Senders
+     *
+     *  - Verschlüsselter symmetrischer Schlüssel
+     *      symmetrischer Schlüssel (Key + IV + Hash)
+     *      name des empfängers
+     */
     public void onReceiveMessage(byte[] byteContent) {
         Log.i("Communication", "Received Message");
 
@@ -155,6 +174,9 @@ public class Communication {
         }
     }
 
+    /**
+     * Sendet die Bytes mit MQTT auf den gemeinsamen Topic
+     */
     public void publishMessage(byte[] byteContent){
         Log.d("Communication", String.format("Publishing bytes: %s", new String(byteContent)));
         client.publishWith()
@@ -173,23 +195,10 @@ public class Communication {
                 });
     }
 
-    /*
-         * message
-         *   text (encrpyted with symkey)
-         *   time
-         *   sender
-         *   keyhash
-         *
-         * symkeyrequest
-         *   pubkey
-         *   name of sender
-         *
-         * symkey
-         *   symkey (encrypted with given pubkey)
-         *   name of receiver
-         *
-         * */
 
+    /**
+     * Sendet eine Text-Nachricht. Diese wird erst verschlüsselt
+     */
     public void SendMessage(Message messageToSend, SecretKey symmetricKey, IvParameterSpec iv, String SymKeyHash){
         Log.i("Communication", "Sending Message with key:");
         Log.i("Communication", symmetricKey.toString()+" iv: "+iv.toString()+" hash; "+SymKeyHash);
@@ -216,6 +225,9 @@ public class Communication {
         publishMessage(sendData);
     }
 
+    /**
+     * Sendet den verschlüsselten symmetrischen schlüssel zurück
+     */
     public void sendSymmetricKey(String symKeyString, String symIVString, String symKeyHash, String receiverName){
         Log.d("Communication", "Sending SymKey");
         JSONObject obj = new JSONObject();
@@ -237,6 +249,9 @@ public class Communication {
         publishMessage(sendData);
     }
 
+    /**
+     * Frage einen symmetrischen Schlüssel bei anderen an.
+     */
     public void requestSymmetricKey(String publicKeyString){
         Log.d("Communication", "Requesting SymKey");
         JSONObject obj = new JSONObject();
@@ -255,8 +270,4 @@ public class Communication {
         publishMessage(sendData);
     }
 
-
-    public void disconnect(){
-        client.disconnect();
-    }
 }

@@ -22,6 +22,10 @@ public class KeyManager {
     final String chatIdentifier;
     Communication client;
 
+
+    /**
+     * Der Keymanager speichert und verwaltet die symmetrischen und asymmetrischen Schlüssel vom client.
+     */
     public KeyManager(String chatIdentifier, Communication client) {
         this.chatIdentifier = chatIdentifier;
         this.client = client;
@@ -29,6 +33,9 @@ public class KeyManager {
         loadSymKeysFromFile();
     }
 
+    /**
+     * Gebe den eigenen öffentlichen Schlüssel zurück. Wenn keiner existiert, erstelle einen
+     */
     public PublicKey getOwnPublicKey(){
         Log.d("KeyManager", "Requested own public key");
         if (ownPublicKey != null){
@@ -49,6 +56,9 @@ public class KeyManager {
         return pubKey;
     }
 
+    /**
+     * Gebe den eigenen privaten Schlüssel zurück. Wenn keiner existiert, erstelle einen
+     */
     public PrivateKey getOwnPrivateKey(){
         Log.d("KeyManager", "Requested private key");
         if (ownPrivateKey != null){
@@ -69,6 +79,9 @@ public class KeyManager {
         return privateKey;
     }
 
+    /**
+     * Erstellt und speichert einen asymmetischen Schlüsselbund in einer Datei
+     */
     private void createOwnKeyPair() {
         Log.i("KeyManager", "Creating KeyPair");
         KeyPair keyPair = Encrypter.generateKeyPair();
@@ -79,6 +92,9 @@ public class KeyManager {
         Encrypter.storeKey(ownPublicKey, "own_public.key");
     }
 
+    /**
+     * Erstellt einen symmetrischen Schlüssel und speichert es in einer datei
+     */
     public void createSymmetricKey(){
         Log.d("KeyManager", "Generation Sym Key");
         this.symmetricKey = SymmetricEncryption.generateKey();
@@ -89,6 +105,10 @@ public class KeyManager {
     }
 
 
+    /**
+     * Erstellt einen symmetrischen Schlüssel von verschlüsseln Bytes. Entschlüsselt sie mit dem
+     * eigenen öffentlichen schlüssel und speichert sie in einer datei
+     */
     public void saveSymmetricKeyFromPartner(String symKeyString, String symIV, String symKeyHash) {
         Log.i("KeyManager", "Saving symkey on the device");
 
@@ -109,6 +129,10 @@ public class KeyManager {
         this.symKeyHash = symKeyHash;
     }
 
+    /**
+     * Verschlüsselt den eigenen symmetrischen Schlüssel mit dem gegebenen öffentlichen Schlüssel
+     * des Empfängers und sende die rohen Bytes
+     */
     public void sendSymmetricKey(String receiverPubKeyString, String receiverName) {
         Log.i("KeyManager", "Sending symKey..");
         if (symmetricKey == null){
@@ -128,6 +152,9 @@ public class KeyManager {
         client.sendSymmetricKey(symKeyStringEncoded, ivStringEncoded, symKeyHash, receiverName);
     }
 
+    /**
+     * Liest den symmetrischen Schlüssel aus den Dateine aus und speichere es in der Klasse
+     */
     public void loadSymKeysFromFile(){
         Log.i("KeyManager", "Loading symkeys from the device");
 

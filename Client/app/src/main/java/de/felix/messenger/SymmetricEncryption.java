@@ -1,11 +1,9 @@
 package de.felix.messenger;
 
 import android.util.Log;
-import android.widget.ImageView;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -42,6 +40,9 @@ public class SymmetricEncryption {
     }
 
 
+    /**
+     * Erstellt einen symmetrischen Schlüssel
+     */
     public static SecretKey generateKey()  {
         KeyGenerator keyGenerator = null;
         try {
@@ -54,12 +55,20 @@ public class SymmetricEncryption {
         }
     }
 
+    /**
+     * Erstellt für den symmetrischen Schlüssel einen Initialisation-Vector (IV)
+     */
     public static IvParameterSpec generateIV(){
         byte[] iv = new byte[16];
         new SecureRandom().nextBytes(iv);
         return new IvParameterSpec(iv);
     }
 
+    /**
+     * Hasht den symmetrischen schlüssel, um ihn für andere zuordenbar zu machen. Der Hash ist
+     * eindeutig und kann als identifikation verwendet werden. Der Hash wird immer mit dem Schlüssel
+     * mitgeschickt, um beim verschlüsseln zu überprüfen, ob der richtige schlüssel verwendet wird.
+     */
     public static String generateKeyHash(SecretKey secretKey){
         MessageDigest md = null;
         try {
@@ -73,10 +82,16 @@ public class SymmetricEncryption {
     }
 
 
+    /**
+     * Erstellt einen symmetrischen schlüssel von rohen Bytes
+     */
     public static SecretKey createSymKeyFromBytes(byte[] symKeyBytes) {
         return new SecretKeySpec(symKeyBytes,"AES");
     }
 
+    /**
+     * Verschlüsselt einen String mit den symmetrischen Schlüssel
+     */
     public static byte[] encryptStringSymmetric(String input, SecretKey key, IvParameterSpec iv) {
         try {
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
@@ -84,12 +99,15 @@ public class SymmetricEncryption {
             return cipher.doFinal(input.getBytes());
 
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException |
-                 BadPaddingException | IllegalBlockSizeException |
-                 InvalidAlgorithmParameterException e) {
+        BadPaddingException | IllegalBlockSizeException |
+        InvalidAlgorithmParameterException e) {
             throw new RuntimeException(e);
         }
     }
 
+    /**
+     * Entschlüsselt gegebene Bytes mit den symmetrischen Schlüssel
+     */
     public static String decryptBytesSymmetric(byte[] cipherText, SecretKey key, IvParameterSpec iv){
         try {
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
@@ -105,6 +123,9 @@ public class SymmetricEncryption {
         }
     }
 
+    /**
+     *   speichert den symmetrischen Schlüssel in einer Datei
+     */
     public static void saveSymKeyInFile(SecretKey symKey, IvParameterSpec iv, String symKeyHash) {
         try {
             FileOutputStream symKeyFile = new FileOutputStream(new File(baseDir, symKeyFileName));
@@ -125,6 +146,9 @@ public class SymmetricEncryption {
         }
     }
 
+    /**
+     * Erstellt den symmetrischen Schlüssel aus den Dateien, falls eine vorhanden ist
+     */
     public static SecretKey loadSymKeyFromFile() {
         try {
             FileInputStream symKeyFile = new FileInputStream(new File(baseDir, symKeyFileName));
@@ -142,6 +166,9 @@ public class SymmetricEncryption {
         }
     }
 
+    /**
+     * lädt den IV aus der Datei, falls vorhanden
+     */
     public static IvParameterSpec loadIVFromFile() {
         try {
 
@@ -159,6 +186,9 @@ public class SymmetricEncryption {
         }
     }
 
+    /**
+     * Lädt den Schlüssel Hash aus der Datei, falls vorhanden
+     */
     public static String loadSymHashFromFile() {
         try {
             FileInputStream symHashFile = new FileInputStream(new File(baseDir, symHashFileName));
